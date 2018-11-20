@@ -38,6 +38,19 @@ export const constantRouterMap = [
   },
 
   {
+    path: '/students',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: '学员管理',
+        component: () => import('@/views/students/index'),
+        meta: { title: '学员管理', icon: 'form' }
+      }
+    ]
+  },
+
+  {
     path: '/example',
     component: Layout,
     redirect: '/example/table',
