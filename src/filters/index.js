@@ -1,5 +1,6 @@
 // set function parseTime,formatTime to filter
 export { parseTime, formatTime } from '@/utils'
+import { courseList, sexList } from '@/enum'
 
 function pluralize(time, label) {
   if (time === 1) {
@@ -39,4 +40,20 @@ export function numberFormatter(num, digits) {
 
 export function toThousandFilter(num) {
   return (+num || 0).toString().replace(/^-?\d+/g, m => m.replace(/(?=(?!\b)(\d{3})+$)/g, ','))
+}
+
+export function courseFilter(value) {
+  let ret = ''
+  if (courseList[value]) {
+    ret = courseList[value].value
+  }
+  return ret
+}
+
+export function sexFilter(value) {
+  let ret = ''
+  if (sexList[value]) {
+    ret = sexList[value].value
+  }
+  return ret
 }
