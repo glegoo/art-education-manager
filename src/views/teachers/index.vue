@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input :placeholder="'学生姓名'" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input :placeholder="'教师姓名'" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <!-- <el-select v-model="listQuery.importance" :placeholder="'重要性'" clearable style="width: 90px" class="filter-item">
         <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item" />
       </el-select> -->
@@ -156,7 +156,7 @@ import {
   fetchPv,
   createArticle,
   updateArticle
-} from '@/api/students'
+} from '@/api/teachers'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
