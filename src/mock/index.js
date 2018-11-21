@@ -1,6 +1,7 @@
 import Mock from 'mockjs'
 import loginAPI from './login'
 import studentsAPI from './students'
+import coursesAPI from './courses'
 import teachersAPI from './teachers'
 import remoteSearchAPI from './remoteSearch'
 import transactionAPI from './transaction'
@@ -29,6 +30,13 @@ Mock.mock(/\/search\/user/, 'get', remoteSearchAPI.searchUser)
 
 // 账单相关
 Mock.mock(/\/transaction\/list/, 'get', transactionAPI.getList)
+
+// 课程相关
+Mock.mock(/\/courses\/list/, 'get', coursesAPI.getList)
+Mock.mock(/\/courses\/detail/, 'get', coursesAPI.getArticle)
+Mock.mock(/\/courses\/pv/, 'get', coursesAPI.getPv)
+Mock.mock(/\/courses\/create/, 'post', coursesAPI.createArticle)
+Mock.mock(/\/courses\/update/, 'post', coursesAPI.updateArticle)
 
 // 学生相关
 Mock.mock(/\/students\/list/, 'get', studentsAPI.getList)

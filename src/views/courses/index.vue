@@ -132,7 +132,7 @@ import {
   fetchPv,
   createArticle,
   updateArticle
-} from '@/api/students'
+} from '@/api/courses'
 import { fetchList as fetchTeacherList } from '@/api/teachers'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
