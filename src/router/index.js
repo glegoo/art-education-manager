@@ -38,6 +38,19 @@ export const constantRouterMap = [
   },
 
   {
+    path: '/course',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: '课程',
+        component: () => import('@/views/courses/index'),
+        meta: { title: '课程', icon: 'form' }
+      }
+    ]
+  },
+
+  {
     path: '/students',
     component: Layout,
     children: [

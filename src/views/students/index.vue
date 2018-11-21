@@ -3,7 +3,7 @@
     <div class="filter-container">
       <el-input :placeholder="'学生姓名'" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-select v-model="listQuery.course" :placeholder="'课程'" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in courseList" :key="item.key" :label="item.value" :value="item.key" />
+        <el-option v-for="item in courseList" :key="item.key" :label="item.course" :value="item.key" />
       </el-select>
       <el-select v-model="listQuery.teacher" :placeholder="'教师'" clearable class="filter-item" style="width: 130px">
         <el-option v-for="item in teacherList" :key="item.id" :label="item.name" :value="item.id" />
@@ -42,7 +42,7 @@
       </el-table-column>
       <el-table-column :label="'课程'" width="80px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.course | courseFilter }}</span>
+          <span>{{ getCourseName(scope.row.course) }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="'教师'" width="80px" align="center">
@@ -88,19 +88,20 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item :label="'姓名'" prop="name">
+        <el-form-item :label="'姓名'" prop="name" placeholder="学员姓名">
           <el-input v-model="temp.name" />
         </el-form-item>
         <el-form-item :label="'性别'" prop="sex">
-          <el-radio v-model="temp.sex" label="0">男</el-radio>
-          <el-radio v-model="temp.sex" label="1">女</el-radio>
+          <el-select v-model="temp.sex" class="filter-item" placeholder="请选择性别">
+            <el-option v-for="item in sexList" :key="item.key" :label="item.value" :value="item.key" />
+          </el-select>
         </el-form-item>
-        <el-form-item :label="'年龄'" prop="sex">
+        <el-form-item :label="'年龄'" prop="age">
           <el-input v-model="temp.age" />
         </el-form-item>
         <el-form-item :label="'课程'" prop="course">
           <el-select v-model="temp.course" class="filter-item" placeholder="请选择课程">
-            <el-option v-for="item in courseList" :key="item.key" :label="item.value" :value="item.key" />
+            <el-option v-for="item in courseList" :key="item.key" :label="item.course" :value="item.key" />
           </el-select>
         </el-form-item>
         <el-form-item :label="'入学日期'" prop="join_time">
@@ -134,10 +135,11 @@ import {
   updateArticle
 } from '@/api/students'
 import { fetchList as fetchTeacherList } from '@/api/teachers'
+import { fetchList as fetchCourseList } from '@/api/courses'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
-import { courseList, studentStatusList } from '@/enum'
+import { studentStatusList, sexList } from '@/enum'
 
 export default {
   name: 'ComplexTable',
@@ -146,16 +148,20 @@ export default {
   filters: {
     statusFilter(left_times) {
       let ret = 'success'
-      if (left_times === 0) {
+      if (left_times < 0) {
+        ret = 'danger'
+      } else if (left_times === 0) {
         ret = 'info'
       } else if (left_times < 5) {
-        ret = 'danger'
+        ret = 'warning'
       }
       return ret
     },
     leftTimes2Status(left_times) {
       let ret = studentStatusList[0].value
-      if (left_times === 0) {
+      if (left_times < 0) {
+        ret = studentStatusList[3].value
+      } else if (left_times === 0) {
         ret = studentStatusList[2].value
       } else if (left_times < 5) {
         ret = studentStatusList[1].value
@@ -179,9 +185,10 @@ export default {
       },
       importanceOptions: [1, 2, 3],
       // calendarTypeOptions,
-      courseList,
+      courseList: null,
       teacherList: null,
       studentStatusList,
+      sexList,
       sortOptions: [
         { label: 'ID Ascending', key: '+id' },
         { label: 'ID Descending', key: '-id' }
@@ -230,16 +237,19 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchTeacherList().then(response => {
-        this.teacherList = response.data.items
-        fetchList(this.listQuery).then(response => {
-          this.list = response.data.items
-          this.total = response.data.total
+      fetchCourseList().then(response => {
+        this.courseList = response.data.items
+        fetchTeacherList().then(response => {
+          this.teacherList = response.data.items
+          fetchList(this.listQuery).then(response => {
+            this.list = response.data.items
+            this.total = response.data.total
 
-          // Just to simulate the time of the request
-          setTimeout(() => {
-            this.listLoading = false
-          }, 0.5 * 1000)
+            // Just to simulate the time of the request
+            setTimeout(() => {
+              this.listLoading = false
+            }, 0.5 * 1000)
+          })
         })
       })
     },
@@ -384,6 +394,13 @@ export default {
       let name = ''
       if (this.teacherList && this.teacherList[id]) {
         name = this.teacherList[id].name
+      }
+      return name
+    },
+    getCourseName(id) {
+      let name = ''
+      if (this.courseList && this.courseList[id]) {
+        name = this.courseList[id].course
       }
       return name
     }

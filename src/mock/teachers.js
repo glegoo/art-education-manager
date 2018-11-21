@@ -2,22 +2,21 @@ import Mock from 'mockjs'
 import { param2Obj } from '@/utils'
 
 const List = []
-const count = 100
+const count = 6
 
 // const baseContent = '<p>我是测试数据我是测试数据</p><p><img src="https://wpimg.wallstcn.com/4c69009c-0fd4-4153-b112-6cb53d1cf943"></p>'
 // const image_uri = 'https://wpimg.wallstcn.com/e4558086-631c-425c-9430-56ffb46e70b3'
 
 for (let i = 0; i < count; i++) {
+  const names = ['韩老师', '曹老师', '杨老师', '石老师', '付老师', '古老师']
   List.push(Mock.mock({
-    id: '@increment',
-    name: Mock.Random.cname(),
-    age: '@integer(1,99)',
+    id: '@increment()',
+    name: names[i],
     sex: '@integer(0,1)',
-    course: '@integer(0,7)',
-    ask_time: +Mock.Random.date('T'),
+    courses: ['@integer(0,7)', '@integer(0,7)'],
     join_time: +Mock.Random.date('T'),
-    teacher: '@integer(1,8)',
-    left_times: '@integer(0,10)'
+    phone: '@integer(13000000000,13999999999)',
+    ps: Mock.Random.string(10)
   }))
 }
 

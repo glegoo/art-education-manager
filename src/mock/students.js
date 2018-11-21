@@ -9,25 +9,24 @@ const count = 100
 
 for (let i = 0; i < count; i++) {
   List.push(Mock.mock({
-    id: '@increment',
+    id: '@increment()',
     name: Mock.Random.cname(),
     age: '@integer(1,99)',
     sex: '@integer(0,1)',
     // 'sex|1': ['0', '1'],
     course: '@integer(0,7)',
-    teacher: '@integer(0,7)',
+    teacher: '@integer(0,5)',
     ask_time: +Mock.Random.date('T'),
     join_time: +Mock.Random.date('T'),
     phone: '@integer(13000000000,13999999999)',
     ps: Mock.Random.string(10),
-    left_times: '@integer(0,10)'
+    left_times: '@integer(-3,10)'
   }))
 }
 
 export default {
   getList: config => {
     const { name, course, teacher, status, page = 1, limit = 20, sort } = param2Obj(config.url)
-    console.log(name, course, teacher)
     let mockList = List.filter(item => {
       if (course && item.course !== Number(course)) return false
       if (name && item.name !== name) return false
@@ -43,6 +42,9 @@ export default {
           case '2':
             if (item.left_times !== 0) return false
             break
+          case '3':
+            if (item.left_times >= 0) return false
+            break
 
           default:
             break
@@ -50,7 +52,6 @@ export default {
       }
       return true
     })
-    console.log(mockList)
 
     if (sort === '-id') {
       mockList = mockList.reverse()

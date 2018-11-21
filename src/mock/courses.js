@@ -2,32 +2,33 @@ import Mock from 'mockjs'
 import { param2Obj } from '@/utils'
 
 const List = []
-const count = 100
+const count = 8
 
 // const baseContent = '<p>我是测试数据我是测试数据</p><p><img src="https://wpimg.wallstcn.com/4c69009c-0fd4-4153-b112-6cb53d1cf943"></p>'
 // const image_uri = 'https://wpimg.wallstcn.com/e4558086-631c-425c-9430-56ffb46e70b3'
 
 for (let i = 0; i < count; i++) {
+  const courseList = [
+    '小提琴',
+    '乐理',
+    '钢琴',
+    '吉他',
+    '尤克里里',
+    '架子鼓',
+    '萨克斯',
+    '古筝'
+  ]
+
   List.push(Mock.mock({
     id: '@increment',
-    name: Mock.Random.cname(),
-    age: '@integer(1,99)',
-    sex: '@integer(0,1)',
-    // 'sex|1': ['0', '1'],
-    course: '@integer(0,7)',
-    teacher: '@integer(0,7)',
-    ask_time: +Mock.Random.date('T'),
-    join_time: +Mock.Random.date('T'),
-    phone: '@integer(13000000000,13999999999)',
-    ps: Mock.Random.string(10),
-    left_times: '@integer(0,10)'
+    course: courseList[i],
+    ps: Mock.Random.string(10)
   }))
 }
 
 export default {
   getList: config => {
     const { name, course, teacher, status, page = 1, limit = 20, sort } = param2Obj(config.url)
-    console.log(name, course, teacher)
     let mockList = List.filter(item => {
       if (course && item.course !== Number(course)) return false
       if (name && item.name !== name) return false
@@ -50,7 +51,6 @@ export default {
       }
       return true
     })
-    console.log(mockList)
 
     if (sort === '-id') {
       mockList = mockList.reverse()

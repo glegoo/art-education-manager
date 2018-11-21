@@ -1,20 +1,9 @@
 <template>
   <div class="app-container">
-    <div class="filter-container">
-      <el-input :placeholder="'学生姓名'" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="listQuery.course" :placeholder="'课程'" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in courseList" :key="item.key" :label="item.value" :value="item.key" />
-      </el-select>
-      <el-select v-model="listQuery.teacher" :placeholder="'教师'" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in teacherList" :key="item.id" :label="item.name" :value="item.id" />
-      </el-select>
-      <el-select v-model="listQuery.status" :placeholder="'状态'" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in studentStatusList" :key="item.key" :label="item.value" :value="item.key" />
-      </el-select>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ '搜索' }}</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">{{ '添加' }}</el-button>
-      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">{{ '导出' }}</el-button>
-      <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">{{ '操作人' }}</el-checkbox>
+    <div class="filter-container" style="text-align: right;">
+      <el-button class="filter-item" type="primary" icon="el-icon-edit" @click="handleCreate">{{ '添加' }}</el-button>
+      <!-- <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">{{ '导出' }}</el-button> -->
+      <!-- <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">{{ '操作人' }}</el-checkbox> -->
     </div>
 
     <br>
@@ -25,49 +14,9 @@
           <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'姓名'" width="80px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.name }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="'性别'" width="65px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.sex | sexFilter }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="'年龄'" width="65px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.age }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="'课程'" width="80px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.course | courseFilter }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="'教师'" width="80px" align="center">
-        <template slot-scope="scope">
-          <span>{{ getTeacherName(scope.row.teacher) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="'剩余课时'" width="80px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.left_times }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="'状态'" class-name="status-col" width="80" align="center">
-        <template slot-scope="scope">
-          <el-tag :type="scope.row.left_times | statusFilter">{{ scope.row.left_times | leftTimes2Status }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column :label="'入学时间'" width="110px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.join_time | parseTime('{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="'联系电话'" width="110px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.phone }}</span>
+      <el-table-column :label="'课程类型'" align="center" >
+        <template slot-scope="scope" >
+          <span>{{ scope.row.course }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="'备注'" align="center">
@@ -88,23 +37,11 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item :label="'姓名'" prop="name">
-          <el-input v-model="temp.name" />
-        </el-form-item>
-        <el-form-item :label="'性别'" prop="sex">
-          <el-radio v-model="temp.sex" label="0">男</el-radio>
-          <el-radio v-model="temp.sex" label="1">女</el-radio>
-        </el-form-item>
-        <el-form-item :label="'年龄'" prop="sex">
-          <el-input v-model="temp.age" />
-        </el-form-item>
         <el-form-item :label="'课程'" prop="course">
-          <el-select v-model="temp.course" class="filter-item" placeholder="请选择课程">
-            <el-option v-for="item in courseList" :key="item.key" :label="item.value" :value="item.key" />
-          </el-select>
+          <el-input v-model="temp.course" placeholder="请输入课程名称"/>
         </el-form-item>
-        <el-form-item :label="'入学日期'" prop="join_time">
-          <el-date-picker v-model="temp.join_time" type="datetime" placeholder="请选择日期" />
+        <el-form-item :label="'备注'">
+          <el-input v-model="temp.ps" placeholder="请输入备注"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -133,36 +70,14 @@ import {
   createArticle,
   updateArticle
 } from '@/api/courses'
-import { fetchList as fetchTeacherList } from '@/api/teachers'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
-import { courseList, studentStatusList } from '@/enum'
 
 export default {
   name: 'ComplexTable',
   components: { Pagination },
   directives: { waves },
-  filters: {
-    statusFilter(left_times) {
-      let ret = 'success'
-      if (left_times === 0) {
-        ret = 'info'
-      } else if (left_times < 5) {
-        ret = 'danger'
-      }
-      return ret
-    },
-    leftTimes2Status(left_times) {
-      let ret = studentStatusList[0].value
-      if (left_times === 0) {
-        ret = studentStatusList[2].value
-      } else if (left_times < 5) {
-        ret = studentStatusList[1].value
-      }
-      return ret
-    }
-  },
   data() {
     return {
       tableKey: 0,
@@ -179,23 +94,11 @@ export default {
       },
       importanceOptions: [1, 2, 3],
       // calendarTypeOptions,
-      courseList,
       teacherList: null,
-      studentStatusList,
-      sortOptions: [
-        { label: 'ID Ascending', key: '+id' },
-        { label: 'ID Descending', key: '-id' }
-      ],
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
       temp: {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
+        id: undefined
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -206,19 +109,8 @@ export default {
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        type: [
-          { required: true, message: 'type is required', trigger: 'change' }
-        ],
-        timestamp: [
-          {
-            type: 'date',
-            required: true,
-            message: 'timestamp is required',
-            trigger: 'change'
-          }
-        ],
-        title: [
-          { required: true, message: 'title is required', trigger: 'blur' }
+        course: [
+          { required: true, message: '请输入课程名称' }
         ]
       },
       downloadLoading: false
@@ -230,17 +122,14 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchTeacherList().then(response => {
-        this.teacherList = response.data.items
-        fetchList(this.listQuery).then(response => {
-          this.list = response.data.items
-          this.total = response.data.total
+      fetchList(this.listQuery).then(response => {
+        this.list = response.data.items
+        this.total = response.data.total
 
-          // Just to simulate the time of the request
-          setTimeout(() => {
-            this.listLoading = false
-          }, 0.5 * 1000)
-        })
+        // Just to simulate the time of the request
+        setTimeout(() => {
+          this.listLoading = false
+        }, 0.5 * 1000)
       })
     },
     handleFilter() {
@@ -379,13 +268,6 @@ export default {
           }
         })
       )
-    },
-    getTeacherName(id) {
-      let name = ''
-      if (this.teacherList && this.teacherList[id]) {
-        name = this.teacherList[id].name
-      }
-      return name
     }
   }
 }

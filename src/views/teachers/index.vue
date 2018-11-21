@@ -1,20 +1,20 @@
 <template>
   <div class="app-container">
-    <div class="filter-container">
-      <el-input :placeholder="'教师姓名'" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+    <div class="filter-container" style="text-align: right;">
+      <!-- <el-input :placeholder="'教师姓名'" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" /> -->
       <!-- <el-select v-model="listQuery.importance" :placeholder="'重要性'" clearable style="width: 90px" class="filter-item">
         <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item" />
       </el-select> -->
-      <el-select v-model="listQuery.course" :placeholder="'课程'" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in courseList" :key="item.key" :label="item.value" :value="item.key" />
-      </el-select>
+      <!-- <el-select v-model="listQuery.course" :placeholder="'课程'" clearable class="filter-item" style="width: 130px">
+        <el-option v-for="item in courseList" :key="item.key" :label="item.course" :value="item.key" />
+      </el-select> -->
       <!-- <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
         <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
       </el-select> -->
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ '搜索' }}</el-button>
+      <!-- <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ '搜索' }}</el-button> -->
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">{{ '添加' }}</el-button>
-      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">{{ '导出' }}</el-button>
-      <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">{{ '操作人' }}</el-checkbox>
+      <!-- <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">{{ '导出' }}</el-button>
+      <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">{{ '操作人' }}</el-checkbox> -->
     </div>
 
     <br>
@@ -25,69 +25,39 @@
           <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'姓名'" width="110px" align="center">
+      <el-table-column :label="'姓名'" width="80px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'性别'" width="110px" align="center">
+      <el-table-column :label="'性别'" width="65px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.sex | sexFilter }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'年龄'" width="110px" align="center">
+      <el-table-column :label="'课程'" width="400px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.age }}</span>
+          <span>{{ getCoursesNameList(scope.row.courses) }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'课程'" width="110px" align="center">
+      <el-table-column :label="'加入时间'" width="110px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.course | courseFilter }}</span>
+          <span>{{ scope.row.join_time | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'剩余课时'" width="110px" align="center">
+      <el-table-column :label="'联系电话'" width="110px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.left_times }}</span>
+          <span>{{ scope.row.phone }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'状态'" class-name="status-col" width="100" align="center">
+      <el-table-column :label="'备注'" align="center">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.left_times | statusFilter">{{ scope.row.left_times | leftTimes2Status }}</el-tag>
+          <span>{{ scope.row.ps }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'入学时间'" width="150px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.join_time | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-        </template>
-      </el-table-column>
-      <!-- <el-table-column v-if="showReviewer" :label="'审核'" width="110px" align="center">
-        <template slot-scope="scope">
-          <span style="color:red;">{{ scope.row.reviewer }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="'重要性'" width="80px">
-        <template slot-scope="scope">
-          <svg-icon v-for="n in +scope.row.importance" :key="n" icon-class="star" class="meta-item__icon" />
-        </template>
-      </el-table-column>
-      <el-table-column :label="'阅读量'" align="center" width="95">
-        <template slot-scope="scope">
-          <span v-if="scope.row.pageviews" class="link-type" @click="handleFetchPv(scope.row.pageviews)">{{ scope.row.pageviews }}</span>
-          <span v-else>0</span>
-        </template>
-      </el-table-column> -->
-      <!-- <el-table-column :label="'状态'" class-name="status-col" width="100">
-        <template slot-scope="scope">
-          <el-tag :type="scope.row.status | statusFilter">{{ scope.row.status | leftTimes2Status }}</el-tag>
-        </template>
-      </el-table-column> -->
-      <el-table-column :label="'操作'" align="center" width="230" class-name="small-padding fixed-width">
+      <el-table-column :label="'操作'" align="center" width="160" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ '编辑' }}</el-button>
-          <!-- <el-button v-if="scope.row.status!='published'" size="mini" type="success" @click="handleModifyStatus(scope.row,'published')">{{ '发布' }}
-          </el-button>
-          <el-button v-if="scope.row.status!='draft'" size="mini" @click="handleModifyStatus(scope.row,'draft')">{{ '草稿' }}
-          </el-button> -->
           <el-button v-if="scope.row.status!='deleted'" size="mini" type="danger" @click="handleModifyStatus(scope.row,'deleted')">{{ '删除' }}
           </el-button>
         </template>
@@ -113,23 +83,14 @@
             <el-option v-for="item in courseList" :key="item.key" :label="item.value" :value="item.key" />
           </el-select>
         </el-form-item>
-        <el-form-item :label="'入学日期'" prop="join_time">
+        <el-form-item :label="'加入日期'" prop="join_time">
           <el-date-picker v-model="temp.join_time" type="datetime" placeholder="请选择日期" />
         </el-form-item>
-        <!-- <el-form-item :label="'标题'" prop="title">
-          <el-input v-model="temp.title" />
-        </el-form-item>
-        <el-form-item :label="'状态'">
-          <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" />
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="'重要性'">
-          <el-rate v-model="temp.importance" :colors="['#99A9BF', '#F7BA2A', '#FF9900']" :max="3" style="margin-top:8px;" />
-        </el-form-item>
-        <el-form-item :label="'点评'">
-          <el-input :autosize="{ minRows: 2, maxRows: 4}" v-model="temp.remark" type="textarea" placeholder="Please input" />
-        </el-form-item> -->
+        <el-table-column :label="'备注'" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.ps }}</span>
+          </template>
+        </el-table-column>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">{{ '取消' }}</el-button>
@@ -156,11 +117,12 @@ import {
   fetchPv,
   createArticle,
   updateArticle
-} from '@/api/teachers'
-import waves from '@/directive/waves' // Waves directive
-import { parseTime } from '@/utils'
-import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
-import { courseList, studentStatusList } from '@/enum'
+} from '@/api/teachers';
+import { fetchList as fetchCourseList } from '@/api/courses';
+import waves from '@/directive/waves'; // Waves directive
+import { parseTime } from '@/utils';
+import Pagination from '@/components/Pagination'; // Secondary package based on el-pagination
+import { studentStatusList } from '@/enum';
 
 // const calendarTypeOptions = [
 //   { key: 'CN', display_name: 'China' },
@@ -189,11 +151,11 @@ export default {
     //   return statusMap[status]
     // },
     statusFilter(left_times) {
-      let ret = 'success'
+      let ret = 'success';
       if (left_times === 0) {
-        ret = 'info'
+        ret = 'info';
       } else if (left_times < 5) {
-        ret = 'danger'
+        ret = 'danger';
       }
       return ret
     },
@@ -226,7 +188,7 @@ export default {
       },
       importanceOptions: [1, 2, 3],
       // calendarTypeOptions,
-      courseList,
+      courseList: null,
       sortOptions: [
         { label: 'ID Ascending', key: '+id' },
         { label: 'ID Descending', key: '-id' }
@@ -275,14 +237,17 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
+      fetchCourseList().then(response => {
+        this.courseList = response.data.items
+        fetchList(this.listQuery).then(response => {
+          this.list = response.data.items
+          this.total = response.data.total
 
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
+          // Just to simulate the time of the request
+          setTimeout(() => {
+            this.listLoading = false
+          }, 1.5 * 1000)
+        })
       })
     },
     handleFilter() {
@@ -304,9 +269,9 @@ export default {
     },
     sortByID(order) {
       if (order === 'ascending') {
-        this.listQuery.sort = '+id'
+        this.listQuery.sort = '+id';
       } else {
-        this.listQuery.sort = '-id'
+        this.listQuery.sort = '-id';
       }
       this.handleFilter()
     },
@@ -323,7 +288,7 @@ export default {
     },
     handleCreate() {
       this.resetTemp()
-      this.dialogStatus = 'create'
+      this.dialogStatus = 'create';
       this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
@@ -333,7 +298,7 @@ export default {
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
           this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
+          this.temp.author = 'vue-element-admin';
           createArticle(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
@@ -350,7 +315,7 @@ export default {
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
       this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update'
+      this.dialogStatus = 'update';
       this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
@@ -366,7 +331,7 @@ export default {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v)
                 this.list.splice(index, 1, this.temp)
-                break
+                break;
               }
             }
             this.dialogFormVisible = false
@@ -426,6 +391,21 @@ export default {
           }
         })
       )
+    },
+    getCoursesNameList(courses) {
+      const getName = id => {
+        let name = '';
+        if (this.courseList && this.courseList[id]) {
+          name = this.courseList[id].course
+        }
+        return name
+      };
+      let ret = '';
+      for (let i = 0; i < courses.length; ++i) {
+        if (ret !== '') ret = ret + ',';
+        ret = ret + getName(courses[i])
+      }
+      return ret
     }
   }
 }
