@@ -5,9 +5,6 @@
       <el-select v-model="listQuery.course" :placeholder="'课程'" clearable class="filter-item" style="width: 130px">
         <el-option v-for="item in courseList" :key="item.key" :label="item.course" :value="item.key" />
       </el-select>
-      <el-select v-model="listQuery.teacher" :placeholder="'教师'" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in teacherList" :key="item.id" :label="item.name" :value="item.id" />
-      </el-select>
       <el-select v-model="listQuery.status" :placeholder="'状态'" clearable class="filter-item" style="width: 130px">
         <el-option v-for="item in studentStatusList" :key="item.key" :label="item.value" :value="item.key" />
       </el-select>
@@ -40,21 +37,6 @@
           <span>{{ scope.row.age }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'课程'" width="80px" align="center">
-        <template slot-scope="scope">
-          <span>{{ getCourseName(scope.row.course) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="'教师'" width="80px" align="center">
-        <template slot-scope="scope">
-          <span>{{ getTeacherName(scope.row.teacher) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="'剩余课时'" width="80px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.left_times }}</span>
-        </template>
-      </el-table-column>
       <el-table-column :label="'状态'" class-name="status-col" width="80" align="center">
         <template slot-scope="scope">
           <el-tag :type="scope.row.left_times | statusFilter">{{ scope.row.left_times | leftTimes2Status }}</el-tag>
@@ -78,8 +60,6 @@
       <el-table-column :label="'操作'" align="center" width="160" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ '编辑' }}</el-button>
-          <el-button v-if="scope.row.status!='deleted'" size="mini" type="danger" @click="handleModifyStatus(scope.row,'deleted')">{{ '删除' }}
-          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -134,7 +114,6 @@ import {
   createArticle,
   updateArticle
 } from '@/api/students'
-import { fetchList as fetchTeacherList } from '@/api/teachers'
 import { fetchList as fetchCourseList } from '@/api/courses'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
@@ -186,7 +165,6 @@ export default {
       importanceOptions: [1, 2, 3],
       // calendarTypeOptions,
       courseList: null,
-      teacherList: null,
       studentStatusList,
       sexList,
       sortOptions: [
@@ -239,8 +217,6 @@ export default {
       this.listLoading = true
       fetchCourseList().then(response => {
         this.courseList = response.data.items
-        fetchTeacherList().then(response => {
-          this.teacherList = response.data.items
           fetchList(this.listQuery).then(response => {
             this.list = response.data.items
             this.total = response.data.total
@@ -250,7 +226,6 @@ export default {
               this.listLoading = false
             }, 0.5 * 1000)
           })
-        })
       })
     },
     handleFilter() {
@@ -389,13 +364,6 @@ export default {
           }
         })
       )
-    },
-    getTeacherName(id) {
-      let name = ''
-      if (this.teacherList && this.teacherList[id]) {
-        name = this.teacherList[id].name
-      }
-      return name
     },
     getCourseName(id) {
       let name = ''

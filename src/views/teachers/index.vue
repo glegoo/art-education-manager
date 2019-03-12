@@ -1,6 +1,9 @@
 <template>
   <div class="app-container">
-    <div class="filter-container" style="text-align: right;">
+    <div
+      class="filter-container"
+      style="text-align: right;"
+    >
       <!-- <el-input :placeholder="'教师姓名'" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" /> -->
       <!-- <el-select v-model="listQuery.importance" :placeholder="'重要性'" clearable style="width: 90px" class="filter-item">
         <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item" />
@@ -12,99 +15,237 @@
         <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
       </el-select> -->
       <!-- <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ '搜索' }}</el-button> -->
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">{{ '添加' }}</el-button>
+      <el-button
+        class="filter-item"
+        style="margin-left: 10px;"
+        type="primary"
+        icon="el-icon-edit"
+        @click="handleCreate"
+      >{{ '添加' }}</el-button>
       <!-- <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">{{ '导出' }}</el-button>
       <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">{{ '操作人' }}</el-checkbox> -->
     </div>
 
     <br>
 
-    <el-table v-loading="listLoading" :key="tableKey" :data="list" border fit highlight-current-row style="width: 100%;" @sort-change="sortChange">
-      <el-table-column :label="'ID'" prop="id" sortable="custom" align="center" width="65">
+    <el-table
+      v-loading="listLoading"
+      :key="tableKey"
+      :data="list"
+      border
+      fit
+      highlight-current-row
+      style="width: 100%;"
+      @sort-change="sortChange"
+    >
+      <el-table-column
+        :label="'ID'"
+        prop="id"
+        sortable="custom"
+        align="center"
+        width="65"
+      >
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'姓名'" width="80px" align="center">
+      <el-table-column
+        :label="'姓名'"
+        width="80px"
+        align="center"
+      >
         <template slot-scope="scope">
           <span>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'性别'" width="65px" align="center">
+      <el-table-column
+        :label="'性别'"
+        width="65px"
+        align="center"
+      >
         <template slot-scope="scope">
           <span>{{ scope.row.sex | sexFilter }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'课程'" width="400px" align="center">
+      <el-table-column
+        :label="'课程'"
+        width="400px"
+        align="center"
+      >
         <template slot-scope="scope">
           <span>{{ getCoursesNameList(scope.row.courses) }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'加入时间'" width="110px" align="center">
+      <el-table-column
+        :label="'加入时间'"
+        width="110px"
+        align="center"
+      >
         <template slot-scope="scope">
           <span>{{ scope.row.join_time | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'联系电话'" width="110px" align="center">
+      <el-table-column
+        :label="'联系电话'"
+        width="110px"
+        align="center"
+      >
         <template slot-scope="scope">
           <span>{{ scope.row.phone }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'备注'" align="center">
+      <el-table-column
+        :label="'备注'"
+        align="center"
+      >
         <template slot-scope="scope">
           <span>{{ scope.row.ps }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'操作'" align="center" width="160" class-name="small-padding fixed-width">
+      <el-table-column
+        :label="'操作'"
+        align="center"
+        width="160"
+        class-name="small-padding fixed-width"
+      >
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ '编辑' }}</el-button>
-          <el-button v-if="scope.row.status!='deleted'" size="mini" type="danger" @click="handleModifyStatus(scope.row,'deleted')">{{ '删除' }}
+          <el-button
+            type="primary"
+            size="mini"
+            @click="handleUpdate(scope.row)"
+          >{{ '编辑' }}</el-button>
+          <el-button
+            v-if="scope.row.status!='deleted'"
+            size="mini"
+            type="danger"
+            @click="handleModifyStatus(scope.row,'deleted')"
+          >{{ '删除' }}
           </el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination
+      v-show="total>0"
+      :total="total"
+      :page.sync="listQuery.page"
+      :limit.sync="listQuery.limit"
+      @pagination="getList"
+    />
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item :label="'姓名'" prop="name">
+    <el-dialog
+      :title="textMap[dialogStatus]"
+      :visible.sync="dialogFormVisible"
+    >
+      <el-form
+        ref="dataForm"
+        :rules="rules"
+        :model="temp"
+        label-position="left"
+        label-width="70px"
+        style="width: 400px; margin-left:50px;"
+      >
+        <el-form-item
+          :label="'姓名'"
+          prop="name"
+        >
           <el-input v-model="temp.name" />
         </el-form-item>
-        <el-form-item :label="'性别'" prop="sex">
-          <el-radio v-model="temp.sex" label="0">男</el-radio>
-          <el-radio v-model="temp.sex" label="1">女</el-radio>
+        <el-form-item
+          :label="'性别'"
+          prop="sex"
+        >
+          <el-radio
+            v-model="temp.sex"
+            label="0"
+          >男</el-radio>
+          <el-radio
+            v-model="temp.sex"
+            label="1"
+          >女</el-radio>
         </el-form-item>
-        <el-form-item :label="'年龄'" prop="sex">
+        <el-form-item
+          :label="'年龄'"
+          prop="sex"
+        >
           <el-input v-model="temp.age" />
         </el-form-item>
-        <el-form-item :label="'课程'" prop="course">
-          <el-select v-model="temp.course" class="filter-item" placeholder="请选择课程">
-            <el-option v-for="item in courseList" :key="item.key" :label="item.value" :value="item.key" />
+        <el-form-item
+          :label="'课程'"
+          prop="course"
+        >
+          <el-select
+            v-model="temp.course"
+            class="filter-item"
+            placeholder="请选择课程"
+          >
+            <el-option
+              v-for="item in courseList"
+              :key="item.key"
+              :label="item.value"
+              :value="item.key"
+            />
           </el-select>
         </el-form-item>
-        <el-form-item :label="'加入日期'" prop="join_time">
-          <el-date-picker v-model="temp.join_time" type="datetime" placeholder="请选择日期" />
+        <el-form-item
+          :label="'加入日期'"
+          prop="join_time"
+        >
+          <el-date-picker
+            v-model="temp.join_time"
+            type="datetime"
+            placeholder="请选择日期"
+          />
         </el-form-item>
-        <el-table-column :label="'备注'" align="center">
+        <el-table-column
+          :label="'备注'"
+          align="center"
+        >
           <template slot-scope="scope">
             <span>{{ scope.row.ps }}</span>
           </template>
         </el-table-column>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <div
+        slot="footer"
+        class="dialog-footer"
+      >
         <el-button @click="dialogFormVisible = false">{{ '取消' }}</el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">{{ '确认' }}</el-button>
+        <el-button
+          type="primary"
+          @click="dialogStatus==='create'?createData():updateData()"
+        >{{ '确认' }}</el-button>
       </div>
     </el-dialog>
 
-    <el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
-      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="key" label="Channel" />
-        <el-table-column prop="pv" label="Pv" />
+    <el-dialog
+      :visible.sync="dialogPvVisible"
+      title="Reading statistics"
+    >
+      <el-table
+        :data="pvData"
+        border
+        fit
+        highlight-current-row
+        style="width: 100%"
+      >
+        <el-table-column
+          prop="key"
+          label="Channel"
+        />
+        <el-table-column
+          prop="pv"
+          label="Pv"
+        />
       </el-table>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">{{ '确认' }}</el-button>
+      <span
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button
+          type="primary"
+          @click="dialogPvVisible = false"
+        >{{ '确认' }}</el-button>
       </span>
     </el-dialog>
 
@@ -117,12 +258,12 @@ import {
   fetchPv,
   createArticle,
   updateArticle
-} from '@/api/teachers';
-import { fetchList as fetchCourseList } from '@/api/courses';
-import waves from '@/directive/waves'; // Waves directive
-import { parseTime } from '@/utils';
-import Pagination from '@/components/Pagination'; // Secondary package based on el-pagination
-import { studentStatusList } from '@/enum';
+} from '@/api/teachers'
+import { fetchList as fetchCourseList } from '@/api/courses'
+import waves from '@/directive/waves' // Waves directive
+import { parseTime } from '@/utils'
+import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
+import { studentStatusList } from '@/enum'
 
 // const calendarTypeOptions = [
 //   { key: 'CN', display_name: 'China' },
@@ -151,11 +292,11 @@ export default {
     //   return statusMap[status]
     // },
     statusFilter(left_times) {
-      let ret = 'success';
+      let ret = 'success'
       if (left_times === 0) {
-        ret = 'info';
+        ret = 'info'
       } else if (left_times < 5) {
-        ret = 'danger';
+        ret = 'danger'
       }
       return ret
     },
@@ -269,9 +410,9 @@ export default {
     },
     sortByID(order) {
       if (order === 'ascending') {
-        this.listQuery.sort = '+id';
+        this.listQuery.sort = '+id'
       } else {
-        this.listQuery.sort = '-id';
+        this.listQuery.sort = '-id'
       }
       this.handleFilter()
     },
@@ -288,7 +429,7 @@ export default {
     },
     handleCreate() {
       this.resetTemp()
-      this.dialogStatus = 'create';
+      this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
@@ -298,7 +439,7 @@ export default {
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
           this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin';
+          this.temp.author = 'vue-element-admin'
           createArticle(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
@@ -315,7 +456,7 @@ export default {
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
       this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update';
+      this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
@@ -331,7 +472,7 @@ export default {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v)
                 this.list.splice(index, 1, this.temp)
-                break;
+                break
               }
             }
             this.dialogFormVisible = false
@@ -365,13 +506,7 @@ export default {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
         const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = [
-          'timestamp',
-          'title',
-          'type',
-          'importance',
-          'status'
-        ]
+        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
         const data = this.formatJson(filterVal, this.list)
         excel.export_json_to_excel({
           header: tHeader,
@@ -394,15 +529,15 @@ export default {
     },
     getCoursesNameList(courses) {
       const getName = id => {
-        let name = '';
+        let name = ''
         if (this.courseList && this.courseList[id]) {
           name = this.courseList[id].course
         }
         return name
-      };
-      let ret = '';
+      }
+      let ret = ''
       for (let i = 0; i < courses.length; ++i) {
-        if (ret !== '') ret = ret + ',';
+        if (ret !== '') ret = ret + ','
         ret = ret + getName(courses[i])
       }
       return ret
