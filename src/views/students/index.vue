@@ -1,106 +1,291 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input :placeholder="'学生姓名'" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="listQuery.course" :placeholder="'课程'" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in courseList" :key="item.key" :label="item.course" :value="item.key" />
+      <el-input
+        :placeholder="'学生姓名'"
+        v-model="listQuery.name"
+        style="width: 200px;"
+        class="filter-item"
+        @keyup.enter.native="handleFilter"
+      />
+      <el-select
+        v-model="listQuery.course"
+        :placeholder="'课程'"
+        clearable
+        class="filter-item"
+        style="width: 130px"
+      >
+        <el-option
+          v-for="item in courseList"
+          :key="item.key"
+          :label="item.course"
+          :value="item.key"
+        />
       </el-select>
-      <el-select v-model="listQuery.status" :placeholder="'状态'" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in studentStatusList" :key="item.key" :label="item.value" :value="item.key" />
+      <el-select
+        v-model="listQuery.status"
+        :placeholder="'状态'"
+        clearable
+        class="filter-item"
+        style="width: 130px"
+      >
+        <el-option
+          v-for="item in studentStatusList"
+          :key="item.key"
+          :label="item.value"
+          :value="item.key"
+        />
       </el-select>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ '搜索' }}</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">{{ '添加' }}</el-button>
-      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">{{ '导出' }}</el-button>
-      <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">{{ '操作人' }}</el-checkbox>
+      <el-button
+        v-waves
+        class="filter-item"
+        type="primary"
+        icon="el-icon-search"
+        @click="handleFilter"
+      >{{ '搜索' }}</el-button>
+      <el-button
+        class="filter-item"
+        style="margin-left: 10px;"
+        type="primary"
+        icon="el-icon-edit"
+        @click="handleCreate"
+      >{{ '添加' }}</el-button>
+      <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="primary"
+        icon="el-icon-download"
+        @click="handleDownload"
+      >{{ '导出' }}</el-button>
+      <el-checkbox
+        v-model="showReviewer"
+        class="filter-item"
+        style="margin-left:15px;"
+        @change="tableKey=tableKey+1"
+      >{{ '操作人' }}</el-checkbox>
     </div>
 
     <br>
 
-    <el-table v-loading="listLoading" :key="tableKey" :data="list" border fit highlight-current-row style="width: 100%;" @sort-change="sortChange">
-      <el-table-column :label="'ID'" prop="id" sortable="custom" align="center" width="65">
+    <el-table
+      v-loading="listLoading"
+      :key="tableKey"
+      :data="list"
+      border
+      fit
+      highlight-current-row
+      style="width: 100%;"
+      @sort-change="sortChange"
+    >
+      <el-table-column
+        :label="'ID'"
+        prop="id"
+        sortable="custom"
+        align="center"
+        width="65"
+      >
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'姓名'" width="80px" align="center">
+      <el-table-column
+        :label="'姓名'"
+        width="80px"
+        align="center"
+      >
         <template slot-scope="scope">
           <span>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'性别'" width="65px" align="center">
+      <el-table-column
+        :label="'性别'"
+        width="65px"
+        align="center"
+      >
         <template slot-scope="scope">
           <span>{{ scope.row.sex | sexFilter }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'年龄'" width="65px" align="center">
+      <el-table-column
+        :label="'年龄'"
+        width="65px"
+        align="center"
+      >
         <template slot-scope="scope">
           <span>{{ scope.row.age }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'状态'" class-name="status-col" width="80" align="center">
+      <el-table-column
+        :label="'状态'"
+        class-name="status-col"
+        width="80"
+        align="center"
+      >
         <template slot-scope="scope">
           <el-tag :type="scope.row.left_times | statusFilter">{{ scope.row.left_times | leftTimes2Status }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column :label="'入学时间'" width="110px" align="center">
+      <el-table-column
+        :label="'入学时间'"
+        width="110px"
+        align="center"
+      >
         <template slot-scope="scope">
           <span>{{ scope.row.join_time | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'联系电话'" width="110px" align="center">
+      <el-table-column
+        :label="'联系电话'"
+        width="110px"
+        align="center"
+      >
         <template slot-scope="scope">
           <span>{{ scope.row.phone }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'备注'" align="center">
+      <el-table-column
+        :label="'备注'"
+        align="center"
+      >
         <template slot-scope="scope">
           <span>{{ scope.row.ps }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'操作'" align="center" width="160" class-name="small-padding fixed-width">
+      <el-table-column
+        :label="'操作'"
+        align="center"
+        width="160"
+        class-name="small-padding fixed-width"
+      >
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ '编辑' }}</el-button>
+          <el-button
+            type="primary"
+            size="mini"
+            @click="handleUpdate(scope.row)"
+          >{{ '编辑' }}</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination
+      v-show="total>0"
+      :total="total"
+      :page.sync="listQuery.page"
+      :limit.sync="listQuery.limit"
+      @pagination="getList"
+    />
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item :label="'姓名'" prop="name" placeholder="学员姓名">
+    <el-dialog
+      :title="textMap[dialogStatus]"
+      :visible.sync="dialogFormVisible"
+    >
+      <el-form
+        ref="dataForm"
+        :rules="rules"
+        :model="temp"
+        label-position="left"
+        label-width="70px"
+        style="width: 400px; margin-left:50px;"
+      >
+        <el-form-item
+          :label="'姓名'"
+          prop="name"
+          placeholder="学员姓名"
+        >
           <el-input v-model="temp.name" />
         </el-form-item>
-        <el-form-item :label="'性别'" prop="sex">
-          <el-select v-model="temp.sex" class="filter-item" placeholder="请选择性别">
-            <el-option v-for="item in sexList" :key="item.key" :label="item.value" :value="item.key" />
+        <el-form-item
+          :label="'性别'"
+          prop="sex"
+        >
+          <el-select
+            v-model="temp.sex"
+            class="filter-item"
+            placeholder="请选择性别"
+          >
+            <el-option
+              v-for="item in sexList"
+              :key="item.key"
+              :label="item.value"
+              :value="item.key"
+            />
           </el-select>
         </el-form-item>
-        <el-form-item :label="'年龄'" prop="age">
+        <el-form-item
+          :label="'年龄'"
+          prop="age"
+        >
           <el-input v-model="temp.age" />
         </el-form-item>
-        <el-form-item :label="'课程'" prop="course">
-          <el-select v-model="temp.course" class="filter-item" placeholder="请选择课程">
-            <el-option v-for="item in courseList" :key="item.key" :label="item.course" :value="item.key" />
+        <el-form-item
+          :label="'课程'"
+          prop="course"
+        >
+          <el-select
+            v-model="temp.course"
+            class="filter-item"
+            placeholder="请选择课程"
+          >
+            <el-option
+              v-for="item in courseList"
+              :key="item.key"
+              :label="item.course"
+              :value="item.key"
+            />
           </el-select>
         </el-form-item>
-        <el-form-item :label="'入学日期'" prop="join_time">
-          <el-date-picker v-model="temp.join_time" type="datetime" placeholder="请选择日期" />
+        <el-form-item
+          :label="'入学日期'"
+          prop="join_time"
+        >
+          <el-date-picker
+            v-model="temp.join_time"
+            type="datetime"
+            placeholder="请选择日期"
+          />
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <div
+        slot="footer"
+        class="dialog-footer"
+      >
         <el-button @click="dialogFormVisible = false">{{ '取消' }}</el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">{{ '确认' }}</el-button>
+        <el-button
+          type="primary"
+          @click="dialogStatus==='create'?createData():updateData()"
+        >{{ '确认' }}</el-button>
       </div>
     </el-dialog>
 
-    <el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
-      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="key" label="Channel" />
-        <el-table-column prop="pv" label="Pv" />
+    <el-dialog
+      :visible.sync="dialogPvVisible"
+      title="Reading statistics"
+    >
+      <el-table
+        :data="pvData"
+        border
+        fit
+        highlight-current-row
+        style="width: 100%"
+      >
+        <el-table-column
+          prop="key"
+          label="Channel"
+        />
+        <el-table-column
+          prop="pv"
+          label="Pv"
+        />
       </el-table>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">{{ '确认' }}</el-button>
+      <span
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button
+          type="primary"
+          @click="dialogPvVisible = false"
+        >{{ '确认' }}</el-button>
       </span>
     </el-dialog>
 
@@ -217,15 +402,15 @@ export default {
       this.listLoading = true
       fetchCourseList().then(response => {
         this.courseList = response.data.items
-          fetchList(this.listQuery).then(response => {
-            this.list = response.data.items
-            this.total = response.data.total
+        fetchList(this.listQuery).then(response => {
+          this.list = response.data.items
+          this.total = response.data.total
 
-            // Just to simulate the time of the request
-            setTimeout(() => {
-              this.listLoading = false
-            }, 0.5 * 1000)
-          })
+          // Just to simulate the time of the request
+          setTimeout(() => {
+            this.listLoading = false
+          }, 0.5 * 1000)
+        })
       })
     },
     handleFilter() {
@@ -338,13 +523,7 @@ export default {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
         const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = [
-          'timestamp',
-          'title',
-          'type',
-          'importance',
-          'status'
-        ]
+        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
         const data = this.formatJson(filterVal, this.list)
         excel.export_json_to_excel({
           header: tHeader,

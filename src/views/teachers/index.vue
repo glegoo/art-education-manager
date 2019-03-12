@@ -4,17 +4,6 @@
       class="filter-container"
       style="text-align: right;"
     >
-      <!-- <el-input :placeholder="'教师姓名'" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" /> -->
-      <!-- <el-select v-model="listQuery.importance" :placeholder="'重要性'" clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item" />
-      </el-select> -->
-      <!-- <el-select v-model="listQuery.course" :placeholder="'课程'" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in courseList" :key="item.key" :label="item.course" :value="item.key" />
-      </el-select> -->
-      <!-- <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
-        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
-      </el-select> -->
-      <!-- <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ '搜索' }}</el-button> -->
       <el-button
         class="filter-item"
         style="margin-left: 10px;"
@@ -22,8 +11,6 @@
         icon="el-icon-edit"
         @click="handleCreate"
       >{{ '添加' }}</el-button>
-      <!-- <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">{{ '导出' }}</el-button>
-      <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">{{ '操作人' }}</el-checkbox> -->
     </div>
 
     <br>
@@ -114,13 +101,6 @@
             size="mini"
             @click="handleUpdate(scope.row)"
           >{{ '编辑' }}</el-button>
-          <el-button
-            v-if="scope.row.status!='deleted'"
-            size="mini"
-            type="danger"
-            @click="handleModifyStatus(scope.row,'deleted')"
-          >{{ '删除' }}
-          </el-button>
         </template>
       </el-table-column>
     </el-table>

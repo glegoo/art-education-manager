@@ -26,8 +26,8 @@ export function fetchPv(pv) {
 
 export function createArticle(data) {
   return request({
-    url: '/students/create',
-    method: 'post',
+    url: '/students/add',
+    method: 'get',
     data
   })
 }
@@ -35,7 +35,7 @@ export function createArticle(data) {
 export function updateArticle(data) {
   return request({
     url: '/students/update',
-    method: 'post',
+    method: 'get',
     data
   })
 }
