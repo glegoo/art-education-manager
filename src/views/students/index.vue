@@ -299,7 +299,7 @@ import {
   createArticle,
   updateArticle
 } from '@/api/students'
-import { fetchList as fetchCourseList } from '@/api/courses'
+import { fetchList as fetchStudentList } from '@/api/students'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
@@ -400,7 +400,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchCourseList().then(response => {
+      fetchStudentList().then(response => {
         this.courseList = response.data.items
         fetchList(this.listQuery).then(response => {
           this.list = response.data.items

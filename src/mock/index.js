@@ -1,5 +1,5 @@
 import Mock from 'mockjs'
-import loginAPI from './login'
+// import loginAPI from './login'
 import studentsAPI from './students'
 import coursesAPI from './courses'
 import teachersAPI from './teachers'
@@ -21,9 +21,9 @@ Mock.XHR.prototype.send = function() {
 // })
 
 // 登录相关
-Mock.mock(/\/login\/login/, 'post', loginAPI.loginByUsername)
-Mock.mock(/\/login\/logout/, 'post', loginAPI.logout)
-Mock.mock(/\/user\/info\.*/, 'get', loginAPI.getUserInfo)
+// Mock.mock(/\/login\/login/, 'post', loginAPI.loginByUsername)
+// Mock.mock(/\/login\/logout/, 'post', loginAPI.logout)
+// Mock.mock(/\/user\/info\.*/, 'get', loginAPI.getUserInfo)
 
 // 搜索相关
 Mock.mock(/\/search\/user/, 'get', remoteSearchAPI.searchUser)
