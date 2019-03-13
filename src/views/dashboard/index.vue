@@ -28,12 +28,12 @@
       class="button-new-tag"
       size="small"
       @click="showInput"
-    >+ New Tag</el-button>
+    >+ 新增科目</el-button>
   </div>
 </template>
 
 <script>
-import { fetchTypeList, addType } from '@/api/courses'
+import { addType } from '@/api/courses'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -55,8 +55,10 @@ export default {
   methods: {
     getList() {
       this.loading = true
-      fetchTypeList().then(response => {
-        this.typeList = response.data.items
+      this.$store.dispatch('GetCourseTypes').then(() => {
+        this.loading = false
+        this.typeList = this.$store.getters.courseTypes
+      }).catch(() => {
         this.loading = false
       })
     },

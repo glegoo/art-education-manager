@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie'
+import { fetchTypeList } from '@/api/courses'
 
 const app = {
   state: {
@@ -6,7 +7,8 @@ const app = {
       opened: !+Cookies.get('sidebarStatus'),
       withoutAnimation: false
     },
-    device: 'desktop'
+    device: 'desktop',
+    courseTypes: []
   },
   mutations: {
     TOGGLE_SIDEBAR: state => {
@@ -25,6 +27,9 @@ const app = {
     },
     TOGGLE_DEVICE: (state, device) => {
       state.device = device
+    },
+    SET_COURSE_TYPES: (state, types) => {
+      state.courseTypes = types
     }
   },
   actions: {
@@ -36,6 +41,16 @@ const app = {
     },
     ToggleDevice({ commit }, device) {
       commit('TOGGLE_DEVICE', device)
+    },
+    GetCourseTypes({ commit, state }) {
+      return new Promise((resolve, reject) => {
+        fetchTypeList(state.token).then(response => {
+          commit('SET_COURSE_TYPES', response.data.items)
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      })
     }
   }
 }
