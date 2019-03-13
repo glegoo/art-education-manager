@@ -39,3 +39,19 @@ export function updateArticle(data) {
     data
   })
 }
+
+export function fetchTypeList() {
+  return request({
+    url: '/courses/type_list',
+    method: 'get',
+    params: null
+  })
+}
+
+export function addType(name) {
+  return request({
+    url: '/courses/add_type',
+    method: 'get',
+    params: name
+  })
+}

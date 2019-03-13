@@ -16,7 +16,7 @@
         style="width: 130px"
       >
         <el-option
-          v-for="item in courseList"
+          v-for="item in studentList"
           :key="item.key"
           :label="item.course"
           :value="item.key"
@@ -228,7 +228,7 @@
             placeholder="请选择课程"
           >
             <el-option
-              v-for="item in courseList"
+              v-for="item in studentList"
               :key="item.key"
               :label="item.course"
               :value="item.key"
@@ -349,7 +349,7 @@ export default {
       },
       importanceOptions: [1, 2, 3],
       // calendarTypeOptions,
-      courseList: null,
+      studentList: null,
       studentStatusList,
       sexList,
       sortOptions: [
@@ -401,15 +401,12 @@ export default {
     getList() {
       this.listLoading = true
       fetchStudentList().then(response => {
-        this.courseList = response.data.items
+        this.studentList = response.data.items
         fetchList(this.listQuery).then(response => {
           this.list = response.data.items
           this.total = response.data.total
 
-          // Just to simulate the time of the request
-          setTimeout(() => {
-            this.listLoading = false
-          }, 0.5 * 1000)
+          this.listLoading = false
         })
       })
     },
@@ -546,8 +543,8 @@ export default {
     },
     getCourseName(id) {
       let name = ''
-      if (this.courseList && this.courseList[id]) {
-        name = this.courseList[id].course
+      if (this.studentList && this.studentList[id]) {
+        name = this.studentList[id].course
       }
       return name
     }
