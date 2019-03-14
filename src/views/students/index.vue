@@ -308,9 +308,8 @@
 
 <script>
 import { fetchList, fetchPv, addStudent, updateStudent } from '@/api/students'
-import { fetchList as fetchStudentList } from '@/api/students'
 import waves from '@/directive/waves' // Waves directive
-import { parseTime } from '@/utils'
+// import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import { studentStatusList, sexList, contactList } from '@/enum'
 
@@ -373,7 +372,6 @@ export default {
       },
       importanceOptions: [1, 2, 3],
       // calendarTypeOptions,
-      studentList: null,
       studentStatusList,
       sexList,
       contactList,
@@ -425,14 +423,11 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchStudentList().then(response => {
-        this.studentList = response.data.items
-        fetchList(this.listQuery).then(response => {
-          this.list = response.data.items
-          this.total = response.data.total
+      fetchList(this.listQuery).then(response => {
+        this.list = response.data.items
+        this.total = response.data.total
 
-          this.listLoading = false
-        })
+        this.listLoading = false
       })
     },
     handleFilter() {
@@ -482,7 +477,7 @@ export default {
     createData() {
       this.$refs['studentForm'].validate(valid => {
         if (valid) {
-          addStudent(this.temp).then((response) => {
+          addStudent(this.temp).then(response => {
             this.temp.id = response.id
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
@@ -548,13 +543,21 @@ export default {
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
+        const tHeader = [
+          'ID',
+          '姓名',
+          '性别',
+          '年龄',
+          '联系人',
+          '联系电话',
+          '备注'
+        ]
+        const filterVal = ['id', 'name', 'sex', 'age', 'contact', 'phone', 'ps']
         const data = this.formatJson(filterVal, this.list)
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: 'table-list'
+          filename: 'student-list'
         })
         this.downloadLoading = false
       })
@@ -562,20 +565,15 @@ export default {
     formatJson(filterVal, jsonData) {
       return jsonData.map(v =>
         filterVal.map(j => {
-          if (j === 'timestamp') {
-            return parseTime(v[j])
+          if (j === 'sex') {
+            return this.sexList[v[j]].value
+          } else if (j === 'contact') {
+            return this.contactList[v[j]].value
           } else {
             return v[j]
           }
         })
       )
-    },
-    getCourseName(id) {
-      let name = ''
-      if (this.studentList && this.studentList[id]) {
-        name = this.studentList[id].course
-      }
-      return name
     },
     formAddTimeChanged(val) {
       console.log(val.getTime())
