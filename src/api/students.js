@@ -24,18 +24,18 @@ export function fetchPv(pv) {
   })
 }
 
-export function createArticle(data) {
+export function addStudent(data) {
   return request({
     url: '/students/add',
     method: 'get',
-    data
+    params: data
   })
 }
 
-export function updateArticle(data) {
+export function updateStudent(data) {
   return request({
     url: '/students/update',
     method: 'get',
-    data
+    params: data
   })
 }

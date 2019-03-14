@@ -16,10 +16,10 @@
         style="width: 130px"
       >
         <el-option
-          v-for="item in studentList"
-          :key="item.key"
-          :label="item.course"
-          :value="item.key"
+          v-for="item in courseTypes"
+          :key="item.id"
+          :label="item.name"
+          :value="item.id"
         />
       </el-select>
       <el-select
@@ -104,7 +104,7 @@
         align="center"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.sex | sexFilter }}</span>
+          <span>{{ sexList[scope.row.sex].value }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -116,7 +116,7 @@
           <span>{{ scope.row.age }}</span>
         </template>
       </el-table-column>
-      <el-table-column
+      <!-- <el-table-column
         :label="'状态'"
         class-name="status-col"
         width="80"
@@ -125,14 +125,23 @@
         <template slot-scope="scope">
           <el-tag :type="scope.row.left_times | statusFilter">{{ scope.row.left_times | leftTimes2Status }}</el-tag>
         </template>
-      </el-table-column>
-      <el-table-column
+      </el-table-column> -->
+      <!-- <el-table-column
         :label="'入学时间'"
         width="110px"
         align="center"
       >
         <template slot-scope="scope">
           <span>{{ scope.row.join_time | parseTime('{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column> -->
+      <el-table-column
+        :label="'联系人'"
+        width="65px"
+        align="center"
+      >
+        <template slot-scope="scope">
+          <span>{{ contactList[scope.row.contact].value }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -181,11 +190,11 @@
       :visible.sync="dialogFormVisible"
     >
       <el-form
-        ref="dataForm"
+        ref="studentForm"
         :rules="rules"
         :model="temp"
         label-position="left"
-        label-width="70px"
+        label-width="100px"
         style="width: 400px; margin-left:50px;"
       >
         <el-form-item
@@ -216,34 +225,39 @@
           :label="'年龄'"
           prop="age"
         >
-          <el-input v-model="temp.age" />
+          <el-input
+            v-model.number="temp.age"
+            placeholder="小学年龄 1-7|2-8|3-9|4-10|5-11|6-12"
+          />
         </el-form-item>
         <el-form-item
-          :label="'课程'"
-          prop="course"
+          :label="'联系人'"
+          prop="contact"
         >
           <el-select
-            v-model="temp.course"
+            v-model="temp.contact"
             class="filter-item"
-            placeholder="请选择课程"
+            placeholder="请选择"
           >
             <el-option
-              v-for="item in studentList"
+              v-for="item in contactList"
               :key="item.key"
-              :label="item.course"
+              :label="item.value"
               :value="item.key"
             />
           </el-select>
         </el-form-item>
         <el-form-item
-          :label="'入学日期'"
-          prop="join_time"
+          :label="'联系电话'"
+          prop="phone"
         >
-          <el-date-picker
-            v-model="temp.join_time"
-            type="datetime"
-            placeholder="请选择日期"
-          />
+          <el-input v-model.number="temp.phone" />
+        </el-form-item>
+        <el-form-item
+          :label="'备注'"
+          prop="ps"
+        >
+          <el-input v-model="temp.ps" />
         </el-form-item>
       </el-form>
       <div
@@ -293,17 +307,12 @@
 </template>
 
 <script>
-import {
-  fetchList,
-  fetchPv,
-  createArticle,
-  updateArticle
-} from '@/api/students'
+import { fetchList, fetchPv, addStudent, updateStudent } from '@/api/students'
 import { fetchList as fetchStudentList } from '@/api/students'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
-import { studentStatusList, sexList } from '@/enum'
+import { studentStatusList, sexList, contactList } from '@/enum'
 
 export default {
   name: 'ComplexTable',
@@ -334,6 +343,21 @@ export default {
     }
   },
   data() {
+    var validatePhone = (rule, value, callback) => {
+      if (!value) {
+        callback()
+      } else {
+        if (!Number.isInteger(value)) {
+          callback(new Error('请输入数字'))
+        } else {
+          if (!/^1[34578]\d{9}$/.test(value)) {
+            callback(new Error('请输入正确的手机号'))
+          } else {
+            callback()
+          }
+        }
+      }
+    }
     return {
       tableKey: 0,
       list: null,
@@ -352,6 +376,7 @@ export default {
       studentList: null,
       studentStatusList,
       sexList,
+      contactList,
       sortOptions: [
         { label: 'ID Ascending', key: '+id' },
         { label: 'ID Descending', key: '-id' }
@@ -360,41 +385,41 @@ export default {
       showReviewer: false,
       temp: {
         id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
+        name: name,
+        sex: undefined,
+        age: undefined,
+        contact: undefined,
+        phone: undefined,
+        ps: undefined
       },
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
-        update: '编辑',
-        create: '添加'
+        update: '编辑学员',
+        create: '添加学员'
       },
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        type: [
-          { required: true, message: 'type is required', trigger: 'change' }
-        ],
-        timestamp: [
+        name: [{ required: true, message: '请填写学员姓名', trigger: 'blur' }],
+        age: [{ type: 'number', message: '请填写数字', trigger: 'change' }],
+        phone: [{ validator: validatePhone, trigger: 'blur' }],
+        sex: [{ required: true, message: '请选择性别', trigger: 'change' }],
+        add_time: [
           {
             type: 'date',
             required: true,
-            message: 'timestamp is required',
+            message: '请选择入学日期',
             trigger: 'change'
           }
-        ],
-        title: [
-          { required: true, message: 'title is required', trigger: 'blur' }
         ]
       },
-      downloadLoading: false
+      downloadLoading: false,
+      courseTypes: []
     }
   },
   created() {
+    this.courseTypes = this.$store.getters.courseTypes
     this.getList()
   },
   methods: {
@@ -437,8 +462,13 @@ export default {
     },
     resetTemp() {
       this.temp = {
+        id: undefined,
         name: name,
-        course: undefined
+        sex: undefined,
+        age: undefined,
+        contact: undefined,
+        phone: undefined,
+        ps: undefined
       }
     },
     handleCreate() {
@@ -446,20 +476,19 @@ export default {
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['studentForm'].clearValidate()
       })
     },
     createData() {
-      this.$refs['dataForm'].validate(valid => {
+      this.$refs['studentForm'].validate(valid => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
+          addStudent(this.temp).then((response) => {
+            this.temp.id = response.id
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
               title: '成功',
-              message: '创建成功',
+              message: '添加成功',
               type: 'success',
               duration: 2000
             })
@@ -473,15 +502,15 @@ export default {
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['studentForm'].clearValidate()
       })
     },
     updateData() {
-      this.$refs['dataForm'].validate(valid => {
+      this.$refs['studentForm'].validate(valid => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
           tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
+          updateStudent(tempData).then(() => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v)
@@ -492,7 +521,7 @@ export default {
             this.dialogFormVisible = false
             this.$notify({
               title: '成功',
-              message: '更新成功',
+              message: '编辑成功',
               type: 'success',
               duration: 2000
             })
@@ -547,6 +576,10 @@ export default {
         name = this.studentList[id].course
       }
       return name
+    },
+    formAddTimeChanged(val) {
+      console.log(val.getTime())
+      this.temp.add_time = val.getTime() / 1000
     }
   }
 }
