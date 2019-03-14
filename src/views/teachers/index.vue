@@ -1,9 +1,20 @@
 <template>
   <div class="app-container">
-    <div
-      class="filter-container"
-      style="text-align: right;"
-    >
+    <div class="filter-container">
+      <el-input
+        :placeholder="'教师姓名'"
+        v-model="listQuery.name"
+        style="width: 200px;"
+        class="filter-item"
+        @keyup.enter.native="handleFilter"
+      />
+      <el-button
+        v-waves
+        class="filter-item"
+        type="primary"
+        icon="el-icon-search"
+        @click="handleFilter"
+      >{{ '搜索' }}</el-button>
       <el-button
         class="filter-item"
         style="margin-left: 10px;"
@@ -11,6 +22,20 @@
         icon="el-icon-edit"
         @click="handleCreate"
       >{{ '添加' }}</el-button>
+      <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="primary"
+        icon="el-icon-download"
+        @click="handleDownload"
+      >{{ '导出' }}</el-button>
+      <!-- <el-checkbox
+        v-model="showReviewer"
+        class="filter-item"
+        style="margin-left:15px;"
+        @change="tableKey=tableKey+1"
+      >{{ '操作人' }}</el-checkbox> -->
     </div>
 
     <br>
@@ -51,25 +76,7 @@
         align="center"
       >
         <template slot-scope="scope">
-          <span>{{ scope.row.sex | sexFilter }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        :label="'课程'"
-        width="400px"
-        align="center"
-      >
-        <template slot-scope="scope">
-          <span>{{ getCoursesNameList(scope.row.courses) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        :label="'加入时间'"
-        width="110px"
-        align="center"
-      >
-        <template slot-scope="scope">
-          <span>{{ scope.row.join_time | parseTime('{y}-{m}-{d}') }}</span>
+          <span>{{ sexList[scope.row.sex].value }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -118,16 +125,17 @@
       :visible.sync="dialogFormVisible"
     >
       <el-form
-        ref="dataForm"
+        ref="teacherForm"
         :rules="rules"
         :model="temp"
         label-position="left"
-        label-width="70px"
+        label-width="100px"
         style="width: 400px; margin-left:50px;"
       >
         <el-form-item
           :label="'姓名'"
           prop="name"
+          placeholder="教师姓名"
         >
           <el-input v-model="temp.name" />
         </el-form-item>
@@ -135,32 +143,13 @@
           :label="'性别'"
           prop="sex"
         >
-          <el-radio
-            v-model="temp.sex"
-            label="0"
-          >男</el-radio>
-          <el-radio
-            v-model="temp.sex"
-            label="1"
-          >女</el-radio>
-        </el-form-item>
-        <el-form-item
-          :label="'年龄'"
-          prop="sex"
-        >
-          <el-input v-model="temp.age" />
-        </el-form-item>
-        <el-form-item
-          :label="'课程'"
-          prop="course"
-        >
           <el-select
-            v-model="temp.course"
+            v-model="temp.sex"
             class="filter-item"
-            placeholder="请选择课程"
+            placeholder="请选择性别"
           >
             <el-option
-              v-for="item in courseList"
+              v-for="item in sexList"
               :key="item.key"
               :label="item.value"
               :value="item.key"
@@ -168,23 +157,17 @@
           </el-select>
         </el-form-item>
         <el-form-item
-          :label="'加入日期'"
-          prop="join_time"
+          :label="'联系电话'"
+          prop="phone"
         >
-          <el-date-picker
-            v-model="temp.join_time"
-            type="datetime"
-            placeholder="请选择日期"
-          />
+          <el-input v-model.number="temp.phone" />
         </el-form-item>
-        <el-table-column
+        <el-form-item
           :label="'备注'"
-          align="center"
+          prop="ps"
         >
-          <template slot-scope="scope">
-            <span>{{ scope.row.ps }}</span>
-          </template>
-        </el-table-column>
+          <el-input v-model="temp.ps" />
+        </el-form-item>
       </el-form>
       <div
         slot="footer"
@@ -233,67 +216,34 @@
 </template>
 
 <script>
-import {
-  fetchList,
-  fetchPv,
-  createArticle,
-  updateArticle
-} from '@/api/teachers'
-import { fetchList as fetchCourseList } from '@/api/courses'
+import { fetchList, fetchPv, addTeacher, updateTeacher } from '@/api/teachers'
 import waves from '@/directive/waves' // Waves directive
-import { parseTime } from '@/utils'
+// import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
-import { studentStatusList } from '@/enum'
-
-// const calendarTypeOptions = [
-//   { key: 'CN', display_name: 'China' },
-//   { key: 'US', display_name: 'USA' },
-//   { key: 'JP', display_name: 'Japan' },
-//   { key: 'EU', display_name: 'Eurozone' }
-// ]
-
-// // arr to obj ,such as { CN : "China", US : "USA" }
-// const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-//   acc[cur.key] = cur.display_name
-//   return acc
-// }, {})
+import { sexList, contactList } from '@/enum'
 
 export default {
   name: 'ComplexTable',
   components: { Pagination },
   directives: { waves },
   filters: {
-    // statusFilter(status) {
-    //   const statusMap = {
-    //     published: 'success',
-    //     draft: 'info',
-    //     deleted: 'danger'
-    //   }
-    //   return statusMap[status]
-    // },
-    statusFilter(left_times) {
-      let ret = 'success'
-      if (left_times === 0) {
-        ret = 'info'
-      } else if (left_times < 5) {
-        ret = 'danger'
-      }
-      return ret
-    },
-    leftTimes2Status(left_times) {
-      let ret = studentStatusList[0].value
-      if (left_times === 0) {
-        ret = studentStatusList[2].value
-      } else if (left_times < 5) {
-        ret = studentStatusList[1].value
-      }
-      return ret
-    }
-    // typeFilter(type) {
-    //   return calendarTypeKeyValue[type]
-    // }
   },
   data() {
+    var validatePhone = (rule, value, callback) => {
+      if (!value) {
+        callback()
+      } else {
+        if (!Number.isInteger(value)) {
+          callback(new Error('请输入数字'))
+        } else {
+          if (!/^1[34578]\d{9}$/.test(value)) {
+            callback(new Error('请输入正确的手机号'))
+          } else {
+            callback()
+          }
+        }
+      }
+    }
     return {
       tableKey: 0,
       list: null,
@@ -302,14 +252,14 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        importance: undefined,
-        title: undefined,
-        type: undefined,
+        course: undefined,
+        name: '',
         sort: '+id'
       },
       importanceOptions: [1, 2, 3],
       // calendarTypeOptions,
-      courseList: null,
+      sexList,
+      contactList,
       sortOptions: [
         { label: 'ID Ascending', key: '+id' },
         { label: 'ID Descending', key: '-id' }
@@ -318,57 +268,49 @@ export default {
       showReviewer: false,
       temp: {
         id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
+        name: name,
+        sex: undefined,
+        phone: undefined,
+        ps: undefined
       },
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
-        update: '编辑',
-        create: '添加'
+        update: '编辑教师',
+        create: '添加教师'
       },
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        type: [
-          { required: true, message: 'type is required', trigger: 'change' }
-        ],
-        timestamp: [
+        name: [{ required: true, message: '请填写教师姓名', trigger: 'blur' }],
+        age: [{ type: 'number', message: '请填写数字', trigger: 'change' }],
+        phone: [{ validator: validatePhone, trigger: 'blur' }],
+        sex: [{ required: true, message: '请选择性别', trigger: 'change' }],
+        add_time: [
           {
             type: 'date',
             required: true,
-            message: 'timestamp is required',
+            message: '请选择入学日期',
             trigger: 'change'
           }
-        ],
-        title: [
-          { required: true, message: 'title is required', trigger: 'blur' }
         ]
       },
-      downloadLoading: false
+      downloadLoading: false,
+      courseTypes: []
     }
   },
   created() {
+    this.courseTypes = this.$store.getters.courseTypes
     this.getList()
   },
   methods: {
     getList() {
       this.listLoading = true
-      fetchCourseList().then(response => {
-        this.courseList = response.data.items
-        fetchList(this.listQuery).then(response => {
-          this.list = response.data.items
-          this.total = response.data.total
+      fetchList(this.listQuery).then(response => {
+        this.list = response.data.items
+        this.total = response.data.total
 
-          // Just to simulate the time of the request
-          setTimeout(() => {
-            this.listLoading = false
-          }, 1.5 * 1000)
-        })
+        this.listLoading = false
       })
     },
     handleFilter() {
@@ -399,12 +341,10 @@ export default {
     resetTemp() {
       this.temp = {
         id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
+        name: name,
+        sex: undefined,
+        phone: undefined,
+        ps: undefined
       }
     },
     handleCreate() {
@@ -412,20 +352,19 @@ export default {
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['teacherForm'].clearValidate()
       })
     },
     createData() {
-      this.$refs['dataForm'].validate(valid => {
+      this.$refs['teacherForm'].validate(valid => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
+          addTeacher(this.temp).then(response => {
+            this.temp.id = response.id
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
               title: '成功',
-              message: '创建成功',
+              message: '添加成功',
               type: 'success',
               duration: 2000
             })
@@ -439,15 +378,15 @@ export default {
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['teacherForm'].clearValidate()
       })
     },
     updateData() {
-      this.$refs['dataForm'].validate(valid => {
+      this.$refs['teacherForm'].validate(valid => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
           tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
+          updateTeacher(tempData).then(() => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v)
@@ -458,7 +397,7 @@ export default {
             this.dialogFormVisible = false
             this.$notify({
               title: '成功',
-              message: '更新成功',
+              message: '编辑成功',
               type: 'success',
               duration: 2000
             })
@@ -485,13 +424,21 @@ export default {
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
+        const tHeader = [
+          'ID',
+          '姓名',
+          '性别',
+          '年龄',
+          '联系人',
+          '联系电话',
+          '备注'
+        ]
+        const filterVal = ['id', 'name', 'sex', 'age', 'contact', 'phone', 'ps']
         const data = this.formatJson(filterVal, this.list)
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: 'table-list'
+          filename: 'teacher-list'
         })
         this.downloadLoading = false
       })
@@ -499,28 +446,19 @@ export default {
     formatJson(filterVal, jsonData) {
       return jsonData.map(v =>
         filterVal.map(j => {
-          if (j === 'timestamp') {
-            return parseTime(v[j])
+          if (j === 'sex') {
+            return this.sexList[v[j]].value
+          } else if (j === 'contact') {
+            return this.contactList[v[j]].value
           } else {
             return v[j]
           }
         })
       )
     },
-    getCoursesNameList(courses) {
-      const getName = id => {
-        let name = ''
-        if (this.courseList && this.courseList[id]) {
-          name = this.courseList[id].course
-        }
-        return name
-      }
-      let ret = ''
-      for (let i = 0; i < courses.length; ++i) {
-        if (ret !== '') ret = ret + ','
-        ret = ret + getName(courses[i])
-      }
-      return ret
+    formAddTimeChanged(val) {
+      console.log(val.getTime())
+      this.temp.add_time = val.getTime() / 1000
     }
   }
 }
