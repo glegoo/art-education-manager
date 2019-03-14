@@ -8,7 +8,7 @@
         class="filter-item"
         @keyup.enter.native="handleFilter"
       />
-      <el-select
+      <!-- <el-select
         v-model="listQuery.course"
         :placeholder="'课程'"
         clearable
@@ -21,8 +21,8 @@
           :label="item.name"
           :value="item.id"
         />
-      </el-select>
-      <el-select
+      </el-select> -->
+      <!-- <el-select
         v-model="listQuery.status"
         :placeholder="'状态'"
         clearable
@@ -35,7 +35,7 @@
           :label="item.value"
           :value="item.key"
         />
-      </el-select>
+      </el-select> -->
       <el-button
         v-waves
         class="filter-item"
@@ -58,12 +58,12 @@
         icon="el-icon-download"
         @click="handleDownload"
       >{{ '导出' }}</el-button>
-      <el-checkbox
+      <!-- <el-checkbox
         v-model="showReviewer"
         class="filter-item"
         style="margin-left:15px;"
         @change="tableKey=tableKey+1"
-      >{{ '操作人' }}</el-checkbox>
+      >{{ '操作人' }}</el-checkbox> -->
     </div>
 
     <br>
@@ -365,9 +365,8 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        importance: undefined,
-        title: undefined,
-        type: undefined,
+        course: undefined,
+        name: '',
         sort: '+id'
       },
       importanceOptions: [1, 2, 3],
