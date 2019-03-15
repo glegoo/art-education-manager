@@ -179,7 +179,7 @@
           prop="salary"
         >
           <el-input
-            v-model="temp.salary"
+            v-model.number="temp.salary"
             placeholder="请输入工资（每课时）"
             style="width: 200px;"
           >
@@ -372,14 +372,16 @@ export default {
       if (!value) {
         return callback(new Error('学生姓名不能为空'))
       }
-      getStudentByName({ name: value }).then(response => {
-        console.log(response)
-        if (response.data) {
-          callback()
-        }
-      }).catch((err) => {
-        return callback(new Error(err))
-      })
+      getStudentByName({ name: value })
+        .then(response => {
+          console.log(response)
+          if (response.data) {
+            callback()
+          }
+        })
+        .catch(err => {
+          return callback(new Error(err))
+        })
     }
     return {
       tableKey: 0,
@@ -405,9 +407,6 @@ export default {
       temp: {
         id: undefined,
         course_mode: undefined,
-        name: name,
-        sex: undefined,
-        phone: undefined,
         salary: undefined,
         week: undefined,
         begin_time: undefined,
@@ -433,8 +432,8 @@ export default {
           { required: true, message: '请选择授课模式', trigger: 'change' }
         ],
         salary: [
-          { required: true, message: '请填写工资', trigger: 'blur' },
-          { type: 'number', message: '请填写数字', trigger: 'change' }
+          { type: 'number', message: '请填写数字' },
+          { required: true, message: '请填写工资' }
         ],
         week: [{ required: true, message: '请选择授课日', trigger: 'change' }],
         begin_time: [
@@ -459,6 +458,7 @@ export default {
       this.listLoading = true
       let loadCount = 0
 
+      // 加载课程列表
       loadCount++
       fetchList(this.listQuery).then(response => {
         this.list = response.data.items
@@ -468,6 +468,7 @@ export default {
         this.listLoading = loadCount === 0
       })
 
+      // 加载教师列表
       loadCount++
       fetchTeacherList().then(response => {
         this.teacherList = response.data.items
@@ -475,6 +476,17 @@ export default {
         loadCount--
         this.listLoading = loadCount === 0
       })
+
+      // 加载科目列表
+      this.typeList = this.$store.getters.courseTypes
+      if (this.typeList.length === 0) {
+        loadCount++
+        this.$store.dispatch('GetCourseTypes').then(() => {
+          this.typeList = this.$store.getters.courseTypes
+          loadCount--
+          this.listLoading = loadCount === 0
+        })
+      }
     },
     handleFilter() {
       this.listQuery.page = 1
@@ -505,9 +517,6 @@ export default {
       this.temp = {
         id: undefined,
         course_mode: undefined,
-        name: name,
-        sex: undefined,
-        phone: undefined,
         salary: undefined,
         week: undefined,
         begin_time: undefined,
