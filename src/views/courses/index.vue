@@ -190,7 +190,7 @@
           :label="'学员'"
           :key="student.key"
           :prop="'students.' + index + '.value'"
-          :rules="{required: true, message: '名字不能为空', trigger: 'blur'}"
+          :rules="{required: true, validator: validateStudentName, trigger: 'blur'}"
         >
           <el-input
             v-model="student.value"
@@ -353,6 +353,7 @@
 <script>
 import { fetchList, fetchPv, addCourse, updateCourse } from '@/api/courses'
 import { fetchList as fetchTeacherList } from '@/api/teachers'
+import { getStudentByName } from '@/api/students'
 import waves from '@/directive/waves' // Waves directive
 // import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
@@ -367,6 +368,19 @@ export default {
     teacherNameFilter: function(id) {}
   },
   data() {
+    var validateStudentName = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('学生姓名不能为空'))
+      }
+      getStudentByName({ name: value }).then(response => {
+        console.log(response)
+        if (response.data) {
+          callback()
+        }
+      }).catch((err) => {
+        return callback(new Error(err))
+      })
+    }
     return {
       tableKey: 0,
       list: null,
@@ -432,7 +446,8 @@ export default {
       },
       downloadLoading: false,
       courseTypes: [],
-      courseTypeFilter
+      courseTypeFilter,
+      validateStudentName
     }
   },
   created() {

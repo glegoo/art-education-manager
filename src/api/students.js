@@ -32,6 +32,14 @@ export function addStudent(data) {
   })
 }
 
+export function getStudentByName(data) {
+  return request({
+    url: '/students/find_by_name',
+    method: 'get',
+    params: data
+  })
+}
+
 export function updateStudent(data) {
   return request({
     url: '/students/update',

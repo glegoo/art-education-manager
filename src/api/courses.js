@@ -26,9 +26,9 @@ export function fetchPv(pv) {
 
 export function addCourse(data) {
   return request({
-    url: '/courses/create',
-    method: 'post',
-    data
+    url: '/courses/add',
+    method: 'get',
+    params: data
   })
 }
 
