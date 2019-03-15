@@ -1,6 +1,8 @@
 // set function parseTime,formatTime to filter
 export { parseTime, formatTime } from '@/utils'
-import { sexList, teachingModeList } from '@/enum'
+import { sexList, courseModeList } from '@/enum'
+import { getElementById } from '@/utils'
+import store from '@/store'
 
 function pluralize(time, label) {
   if (time === 1) {
@@ -50,10 +52,19 @@ export function sexFilter(value) {
   return ret
 }
 
-export function teachingModeFilter(value) {
+export function courseModeFilter(value) {
   let ret = ''
-  if (teachingModeList[value]) {
-    ret = teachingModeList[value].value
+  if (courseModeList[value]) {
+    ret = courseModeList[value].value
+  }
+  return ret
+}
+
+export function courseTypeFilter(type) {
+  let ret = '-'
+  const element = getElementById(store.getters.courseTypes, type)
+  if (element) {
+    ret = element.value
   }
   return ret
 }

@@ -87,3 +87,16 @@ export function param2Obj(url) {
     '"}'
   )
 }
+
+// 获取Array中ID的元素
+export function getElementById(list, id, multiple = false) {
+  let ret = null
+  if (list && id) {
+    if (typeof id === 'string') id = Number(id)
+    ret = list.filter(element => {
+      return Number(element.id) === id
+    })
+    if (!multiple && ret.length > 0) ret = ret[0]
+  }
+  return ret
+}

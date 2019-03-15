@@ -8,7 +8,7 @@ export function fetchList(query) {
   })
 }
 
-export function fetchArticle(id) {
+export function fetchCourse(id) {
   return request({
     url: '/courses/detail',
     method: 'get',
@@ -24,7 +24,7 @@ export function fetchPv(pv) {
   })
 }
 
-export function createArticle(data) {
+export function addCourse(data) {
   return request({
     url: '/courses/create',
     method: 'post',
@@ -32,7 +32,7 @@ export function createArticle(data) {
   })
 }
 
-export function updateArticle(data) {
+export function updateCourse(data) {
   return request({
     url: '/courses/update',
     method: 'post',
@@ -53,5 +53,13 @@ export function addType(name) {
     url: '/courses/add_type',
     method: 'get',
     params: name
+  })
+}
+
+export function fetchCourseTeacherList() {
+  return request({
+    url: '/courses/course_teacher_list',
+    method: 'get',
+    params: null
   })
 }
