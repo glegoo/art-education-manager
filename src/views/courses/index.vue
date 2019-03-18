@@ -34,7 +34,7 @@
         v-model="showReviewer"
         class="filter-item"
         style="margin-left:15px;"
-        @change="tableKey=tableKey+1"
+        @@="tableKey=tableKey+1"
       >{{ '操作人' }}</el-checkbox> -->
     </div>
 
@@ -48,7 +48,7 @@
       fit
       highlight-current-row
       style="width: 100%;"
-      @sort-change="sortChange"
+      @sort-@="sortChange"
     >
       <el-table-column
         :label="'ID'"
@@ -152,7 +152,7 @@
           :label="'授课模式'"
           prop="course_mode"
         >
-          <el-radio-group v-model="temp.course_mode">
+          <el-radio-group v-model="temp.course_mode" @change="courseModeChanged">
             <el-radio :label="0">一对一</el-radio>
             <el-radio :label="1">小组课</el-radio>
           </el-radio-group>
@@ -233,6 +233,7 @@
             size="mini"
             type="primary"
             circle
+            :disabled="temp.course_mode === 0"
           ></el-button>
         </el-form-item>
         <el-form-item
@@ -372,10 +373,18 @@ export default {
       if (!value) {
         return callback(new Error('学生姓名不能为空'))
       }
-      console.log(rule)
+      const same = this.temp.students.filter(student => {
+        return student.value === value
+      })
+      if (same.length > 1) {
+        return callback(new Error('不可以重复添加'))
+      }
+      const strArr = rule.field.split('.')
+      const index = Number(strArr[1])
       getStudentByName({ name: value })
         .then(response => {
           if (response.data) {
+            this.temp.students[index].id = response.data.id
             callback()
           }
         })
@@ -407,7 +416,7 @@ export default {
       temp: {
         id: undefined,
         course_mode: 0,
-        salary: undefined,
+        salary: 0,
         week: undefined,
         begin_time: undefined,
         end_time: undefined,
@@ -424,23 +433,23 @@ export default {
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        teacher: [{ required: true, message: '请选择教师', trigger: 'change' }],
+        teacher: [{ required: true, message: '请选择教师', trigger: '@' }],
         course_type: [
-          { required: true, message: '请选择课程类型', trigger: 'change' }
+          { required: true, message: '请选择课程类型', trigger: '@' }
         ],
         course_mode: [
-          { required: true, message: '请选择授课模式', trigger: 'change' }
+          { required: true, message: '请选择授课模式', trigger: '@' }
         ],
         salary: [
           { type: 'number', message: '请填写数字' },
           { required: true, message: '请填写工资' }
         ],
-        week: [{ required: true, message: '请选择授课日', trigger: 'change' }],
+        week: [{ required: true, message: '请选择授课日', trigger: '@' }],
         begin_time: [
-          { required: true, message: '请选开始时间', trigger: 'change' }
+          { required: true, message: '请选开始时间', trigger: '@' }
         ],
         end_time: [
-          { required: true, message: '请选结束时间', trigger: 'change' }
+          { required: true, message: '请选结束时间', trigger: '@' }
         ]
       },
       downloadLoading: false,
@@ -517,7 +526,7 @@ export default {
       this.temp = {
         id: undefined,
         course_mode: 0,
-        salary: undefined,
+        salary: 0,
         week: undefined,
         begin_time: undefined,
         end_time: undefined,
@@ -565,7 +574,7 @@ export default {
       this.$refs['courseForm'].validate(valid => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
+          tempData.timestamp = +new Date(tempData.timestamp) // @ Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
           updateCourse(tempData).then(() => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
@@ -651,6 +660,11 @@ export default {
         value: '',
         key: Date.now()
       })
+    },
+    courseModeChanged(value) {
+      if (value === 0 && this.temp.students.length > 1) {
+        this.temp.students = this.temp.students.slice(0, 1)
+      }
     }
   }
 }
