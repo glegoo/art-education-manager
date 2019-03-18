@@ -153,8 +153,8 @@
           prop="course_mode"
         >
           <el-radio-group v-model="temp.course_mode">
-            <el-radio label=0>一对一</el-radio>
-            <el-radio label=1>小组课</el-radio>
+            <el-radio :label="0">一对一</el-radio>
+            <el-radio :label="1">小组课</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item
@@ -372,9 +372,9 @@ export default {
       if (!value) {
         return callback(new Error('学生姓名不能为空'))
       }
+      console.log(rule)
       getStudentByName({ name: value })
         .then(response => {
-          console.log(response)
           if (response.data) {
             callback()
           }
@@ -406,7 +406,7 @@ export default {
       showReviewer: false,
       temp: {
         id: undefined,
-        course_mode: undefined,
+        course_mode: 0,
         salary: undefined,
         week: undefined,
         begin_time: undefined,
@@ -516,7 +516,7 @@ export default {
     resetTemp() {
       this.temp = {
         id: undefined,
-        course_mode: undefined,
+        course_mode: 0,
         salary: undefined,
         week: undefined,
         begin_time: undefined,
