@@ -405,7 +405,8 @@ export default {
         page: 1,
         limit: 20,
         course: undefined,
-        name: '',
+        student: undefined,
+        teacher: undefined,
         sort: '+id'
       },
       sortOptions: [
