@@ -64,7 +64,7 @@ export function courseTypeFilter(type) {
   let ret = '-'
   const element = getElementById(store.getters.courseTypes, type)
   if (element) {
-    ret = element.value
+    ret = element.name
   }
   return ret
 }

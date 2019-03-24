@@ -35,7 +35,7 @@
         class="filter-item"
         style="margin-left:15px;"
         @@="tableKey=tableKey+1"
-      >{{ '操作人' }}</el-checkbox> -->
+      >{{ '操作人' }}</el-checkbox>-->
     </div>
 
     <br>
@@ -50,48 +50,37 @@
       style="width: 100%;"
       @sort-@="sortChange"
     >
-      <el-table-column
-        :label="'ID'"
-        prop="id"
-        sortable="custom"
-        align="center"
-        width="65"
-      >
+      <el-table-column :label="'ID'" prop="id" sortable="custom" align="center" width="65">
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        :label="'课程类型'"
-        width="80px"
-        align="center"
-      >
+      <el-table-column :label="'课程类型'" width="80px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.course_type | courseTypeFilter }}</span>
+          <span>{{ courseTypeFilter(scope.row.course_type) }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        :label="'教师'"
-        width="65px"
-        align="center"
-      >
+      <el-table-column :label="'教师'" width="65px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.id | teacherNameFilter }}</span>
+          <span>{{ scope.row.teacher_name }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        :label="'联系电话'"
-        width="110px"
-        align="center"
-      >
+      <el-table-column :label="'学员'" width="200px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.phone }}</span>
+          <span>{{ scope.row.students_name }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        :label="'备注'"
-        align="center"
-      >
+      <el-table-column :label="'授课日'" width="65px" align="center">
+        <template slot-scope="scope">
+          <span>{{ weekList[scope.row.week].value }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="'授课时间'" width="200px" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.begin_time.slice(0,5) + '~' + scope.row.end_time.slice(0,5) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="'备注'" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.ps }}</span>
         </template>
@@ -103,11 +92,7 @@
         class-name="small-padding fixed-width"
       >
         <template slot-scope="scope">
-          <el-button
-            type="primary"
-            size="mini"
-            @click="handleUpdate(scope.row)"
-          >{{ '编辑' }}</el-button>
+          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ '编辑' }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -120,10 +105,7 @@
       @pagination="getList"
     />
 
-    <el-dialog
-      :title="textMap[dialogStatus]"
-      :visible.sync="dialogFormVisible"
-    >
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form
         ref="courseForm"
         :rules="rules"
@@ -131,15 +113,8 @@
         label-position="right"
         style="width: 400px; margin-left:50px;"
       >
-        <el-form-item
-          :label="'课程类型'"
-          prop="course_type"
-        >
-          <el-select
-            v-model="temp.course_type"
-            class="filter-item"
-            placeholder="请选择课程"
-          >
+        <el-form-item :label="'课程类型'" prop="course_type">
+          <el-select v-model="temp.course_type" class="filter-item" placeholder="请选择课程">
             <el-option
               v-for="item in courseTypes"
               :key="item.id"
@@ -148,24 +123,14 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item
-          :label="'授课模式'"
-          prop="course_mode"
-        >
+        <el-form-item :label="'授课模式'" prop="course_mode">
           <el-radio-group v-model="temp.course_mode" @change="courseModeChanged">
             <el-radio :label="0">一对一</el-radio>
             <el-radio :label="1">小组课</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item
-          :label="'教师'"
-          prop="teacher"
-        >
-          <el-select
-            v-model="temp.teacher"
-            class="filter-item"
-            placeholder="请选择教师"
-          >
+        <el-form-item :label="'教师'" prop="teacher">
+          <el-select v-model="temp.teacher" class="filter-item" placeholder="请选择教师">
             <el-option
               v-for="item in teacherList"
               :key="item.id"
@@ -174,16 +139,8 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item
-          :label="'工资'"
-          prop="salary"
-        >
-          <el-input
-            v-model.number="temp.salary"
-            placeholder="请输入工资（每课时）"
-            style="width: 200px;"
-          >
-          </el-input>
+        <el-form-item :label="'工资'" prop="salary">
+          <el-input v-model.number="temp.salary" placeholder="请输入工资（每课时）" style="width: 200px;"></el-input>
         </el-form-item>
         <el-form-item
           v-for="(student, index) in temp.students"
@@ -192,23 +149,11 @@
           :prop="'students.' + index + '.value'"
           :rules="{required: true, validator: validateStudentName, trigger: 'blur'}"
         >
-          <el-input
-            v-model="student.value"
-            style="width: 130px;"
-          >
-          </el-input>
-          <el-popover
-            placement="top"
-            width="160"
-            v-model="student.confirmVisable"
-          >
+          <el-input v-model="student.value" style="width: 130px;"></el-input>
+          <el-popover placement="top" width="160" v-model="student.confirmVisable">
             <p>确定删除吗？</p>
             <div style="text-align: right; margin: 0">
-              <el-button
-                size="mini"
-                type="text"
-                @click="student.confirmVisable = false"
-              >取消</el-button>
+              <el-button size="mini" type="text" @click="student.confirmVisable = false">取消</el-button>
               <el-button
                 type="primary"
                 size="mini"
@@ -236,10 +181,7 @@
             :disabled="temp.course_mode === 0"
           ></el-button>
         </el-form-item>
-        <el-form-item
-          :label="'授课日'"
-          prop="week"
-        >
+        <el-form-item :label="'授课日'" prop="week">
           <el-select
             v-model="temp.week"
             class="filter-item"
@@ -254,10 +196,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item
-          :label="'授课时间'"
-          required
-        >
+        <el-form-item :label="'授课时间'" required>
           <el-col :span="8">
             <el-form-item prop="begin_time">
               <el-time-select
@@ -269,9 +208,7 @@
                   step: '00:10',
                   end: '21:00'
                 }"
-              >
-              </el-time-select>
-
+              ></el-time-select>
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -286,29 +223,21 @@
                   end: '21:00',
                   minTime: temp.begin_time
                 }"
-              >
-              </el-time-select>
+              ></el-time-select>
             </el-form-item>
           </el-col>
         </el-form-item>
-        <el-form-item
-          :label="'备注'"
-          prop="ps"
-        >
+        <el-form-item :label="'备注'" prop="ps">
           <el-input
             type="textarea"
             :autosize="{ minRows: 2, maxRows: 4}"
             placeholder="请输入内容"
             v-model="temp.ps"
             style="width: 300px;"
-          >
-          </el-input>
+          ></el-input>
         </el-form-item>
       </el-form>
-      <div
-        slot="footer"
-        class="dialog-footer"
-      >
+      <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">{{ '取消' }}</el-button>
         <el-button
           type="primary"
@@ -317,37 +246,15 @@
       </div>
     </el-dialog>
 
-    <el-dialog
-      :visible.sync="dialogPvVisible"
-      title="Reading statistics"
-    >
-      <el-table
-        :data="pvData"
-        border
-        fit
-        highlight-current-row
-        style="width: 100%"
-      >
-        <el-table-column
-          prop="key"
-          label="Channel"
-        />
-        <el-table-column
-          prop="pv"
-          label="Pv"
-        />
+    <el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
+      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
+        <el-table-column prop="key" label="Channel"/>
+        <el-table-column prop="pv" label="Pv"/>
       </el-table>
-      <span
-        slot="footer"
-        class="dialog-footer"
-      >
-        <el-button
-          type="primary"
-          @click="dialogPvVisible = false"
-        >{{ '确认' }}</el-button>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogPvVisible = false">{{ '确认' }}</el-button>
       </span>
     </el-dialog>
-
   </div>
 </template>
 
@@ -356,7 +263,7 @@ import { fetchList, fetchPv, addCourse, updateCourse } from '@/api/courses'
 import { fetchList as fetchTeacherList } from '@/api/teachers'
 import { getStudentByName } from '@/api/students'
 import waves from '@/directive/waves' // Waves directive
-// import { parseTime } from '@/utils'
+import { getElementById } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import { weekList } from '@/enum'
 import { courseTypeFilter } from '@/filters'
@@ -446,16 +353,13 @@ export default {
           { required: true, message: '请填写工资' }
         ],
         week: [{ required: true, message: '请选择授课日', trigger: '@' }],
-        begin_time: [
-          { required: true, message: '请选开始时间', trigger: '@' }
-        ],
-        end_time: [
-          { required: true, message: '请选结束时间', trigger: '@' }
-        ]
+        begin_time: [{ required: true, message: '请选开始时间', trigger: '@' }],
+        end_time: [{ required: true, message: '请选结束时间', trigger: '@' }]
       },
       downloadLoading: false,
       courseTypes: [],
       courseTypeFilter,
+      getElementById,
       validateStudentName
     }
   },
@@ -468,25 +372,6 @@ export default {
       this.listLoading = true
       let loadCount = 0
 
-      // 加载课程列表
-      loadCount++
-      fetchList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
-
-        loadCount--
-        this.listLoading = loadCount === 0
-      })
-
-      // 加载教师列表
-      loadCount++
-      fetchTeacherList().then(response => {
-        this.teacherList = response.data.items
-
-        loadCount--
-        this.listLoading = loadCount === 0
-      })
-
       // 加载科目列表
       this.typeList = this.$store.getters.courseTypes
       if (this.typeList.length === 0) {
@@ -497,6 +382,25 @@ export default {
           this.listLoading = loadCount === 0
         })
       }
+
+      // 加载教师列表
+      loadCount++
+      fetchTeacherList().then(response => {
+        this.teacherList = response.data.items
+
+        loadCount--
+        this.listLoading = loadCount === 0
+      })
+
+      // 加载课程列表
+      loadCount++
+      fetchList(this.listQuery).then(response => {
+        this.list = response.data.items
+        this.total = response.data.total
+
+        loadCount--
+        this.listLoading = loadCount === 0
+      })
     },
     handleFilter() {
       this.listQuery.page = 1
