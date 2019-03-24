@@ -142,14 +142,15 @@
         <el-form-item :label="'工资'" prop="salary">
           <el-input v-model.number="temp.salary" placeholder="请输入工资（每课时）" style="width: 200px;"></el-input>
         </el-form-item>
-        <el-form-item
-          v-for="(student, index) in temp.students"
-          :label="'学员'"
-          :key="student.key"
-          :prop="'students.' + index + '.value'"
-          :rules="{required: true, validator: validateStudentName, trigger: 'blur'}"
-        >
-          <el-input v-model="student.value" style="width: 130px;"></el-input>
+        <el-form-item v-for="(student, index) in temp.students" :label="'学员'" :key="student.key">
+          <el-col :span="8">
+            <el-form-item
+              :prop="'students.' + index + '.value'"
+              :rules="{required: true, validator: validateStudentName, trigger: 'blur'}"
+            >
+              <el-input v-model="student.value" style="width: 130px;"></el-input>
+            </el-form-item>
+          </el-col>
           <el-popover placement="top" width="160" v-model="student.confirmVisable">
             <p>确定删除吗？</p>
             <div style="text-align: right; margin: 0">
