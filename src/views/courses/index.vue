@@ -114,7 +114,12 @@
         style="width: 400px; margin-left:50px;"
       >
         <el-form-item :label="'课程类型'" prop="course_type">
-          <el-select v-model="temp.course_type" class="filter-item" placeholder="请选择课程">
+          <el-select
+            v-model="temp.course_type"
+            class="filter-item"
+            placeholder="请选择课程"
+            :disabled="dialogStatus=='update'"
+          >
             <el-option
               v-for="item in courseTypes"
               :key="item.id"
@@ -124,7 +129,11 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="'授课模式'" prop="course_mode">
-          <el-radio-group v-model="temp.course_mode" @change="courseModeChanged">
+          <el-radio-group
+            v-model="temp.course_mode"
+            @change="courseModeChanged"
+            :disabled="dialogStatus=='update'"
+          >
             <el-radio :label="0">一对一</el-radio>
             <el-radio :label="1">小组课</el-radio>
           </el-radio-group>
@@ -153,7 +162,11 @@
               :prop="'students.' + index + '.value'"
               :rules="{required: true, validator: validateStudentName, trigger: 'blur'}"
             >
-              <el-input v-model="student.value" style="width: 130px;"></el-input>
+              <el-input
+                v-model="student.value"
+                style="width: 130px;"
+                :disabled="dialogStatus=='update' && temp.course_mode === 0"
+              ></el-input>
             </el-form-item>
           </el-col>
           <el-popover placement="top" width="160" v-model="student.confirmVisable">
@@ -472,6 +485,12 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
+      const names = this.temp.students_name.split(',')
+      this.temp.students = names.map(item => {
+        return { value: item, already: true }
+      })
+      this.temp.begin_time = this.temp.begin_time.slice(0, 5)
+      this.temp.end_time = this.temp.end_time.slice(0, 5)
       this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
