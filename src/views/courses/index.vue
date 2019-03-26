@@ -142,7 +142,12 @@
         <el-form-item :label="'工资'" prop="salary">
           <el-input v-model.number="temp.salary" placeholder="请输入工资（每课时）" style="width: 200px;"></el-input>
         </el-form-item>
-        <el-form-item v-for="(student, index) in temp.students" :label="'学员'" :key="student.key">
+        <el-form-item
+          v-for="(student, index) in temp.students"
+          :label="'学员'"
+          :key="student.key"
+          required
+        >
           <el-col :span="8">
             <el-form-item
               :prop="'students.' + index + '.value'"
@@ -172,14 +177,13 @@
             ></el-button>
           </el-popover>
         </el-form-item>
-        <el-form-item size="mini">
+        <el-form-item size="mini" v-if="temp.course_mode !== 0">
           <el-button
             @click="addStudentDomain"
             icon="el-icon-plus"
             size="mini"
             type="primary"
             circle
-            :disabled="temp.course_mode === 0"
           ></el-button>
         </el-form-item>
         <el-form-item :label="'授课日'" prop="week">
@@ -365,7 +369,6 @@ export default {
     }
   },
   created() {
-    this.courseTypes = this.$store.getters.courseTypes
     this.getList()
   },
   methods: {
@@ -374,11 +377,11 @@ export default {
       let loadCount = 0
 
       // 加载科目列表
-      this.typeList = this.$store.getters.courseTypes
-      if (this.typeList.length === 0) {
+      this.courseTypes = this.$store.getters.courseTypes
+      if (this.courseTypes.length === 0) {
         loadCount++
         this.$store.dispatch('GetCourseTypes').then(() => {
-          this.typeList = this.$store.getters.courseTypes
+          this.courseTypes = this.$store.getters.courseTypes
           loadCount--
           this.listLoading = loadCount === 0
         })
