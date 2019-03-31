@@ -157,16 +157,44 @@
           :key="student.key"
           required
         >
-          <el-col :span="8">
+          <el-col :span="6">
             <el-form-item
               :prop="'students.' + index + '.value'"
               :rules="{required: true, validator: validateStudentName, trigger: 'blur'}"
             >
               <el-input
                 v-model="student.value"
-                style="width: 130px;"
+                style="width: 90px;"
                 :disabled="dialogStatus=='update' && temp.course_mode === 0"
+                placeholder="学员姓名"
               ></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item
+              :prop="'students.' + index + '.fee'"
+              :rules="[
+                { type: 'number', message: '请填写数字' },
+                { required: true, message: '请填写课时费' }
+              ]"
+            >
+              <el-input v-model.number="student.fee" style="width: 90px;">
+                <i slot="suffix">元/课时</i>
+              </el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item
+              :prop="'students.' + index + '.left_times'"
+              :rules="[
+                { type: 'number', message: '请填写数字' },
+                { required: true, message: '请填写剩余课时' }
+              ]"
+            >
+              <el-input v-model.number="student.left_times" style="width: 90px;">
+                <i slot="prefix">剩</i>
+                <i slot="suffix">节</i>
+              </el-input>
             </el-form-item>
           </el-col>
           <el-popover placement="top" width="160" v-model="student.confirmVisable">
@@ -469,8 +497,48 @@ export default {
     createData() {
       this.$refs['courseForm'].validate(valid => {
         if (valid) {
+          // 服务器格式转为编辑格式
+          // 拼接学生姓名
+          if (!this.temp.students_name) {
+            this.temp.students.forEach(element => {
+              if (!this.temp.students_name) {
+                this.temp.students_name = ''
+                this.temp.students_fee = ''
+                this.temp.students_left_times = ''
+              } else {
+                this.temp.students_name += ','
+                this.temp.students_fee += ','
+                this.temp.students_left_times += ','
+              }
+              this.temp.students_name += element.value
+              this.temp.students_fee += element.fee
+              this.temp.students_left_times += element.left_times
+            })
+          }
+          // 检查是否有重复课程
+          const same = this.list.filter(item => {
+            return (
+              item.teacher === this.temp.teacher &&
+              item.students_name.trim() === this.temp.students_name.trim() &&
+              item.week === this.temp.week &&
+              item.course_type === this.temp.course_type
+            )
+          })
+          if (same.length > 0) {
+            this.$notify({
+              title: '错误',
+              message: '该课程已存在。课程ID：' + same[0].id,
+              type: 'error',
+              duration: 2000
+            })
+            return
+          }
           addCourse(this.temp).then(response => {
             this.temp.id = response.id
+            this.temp.teacher_name = getElementById(
+              this.teacherList,
+              this.temp.teacher
+            ).name
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
@@ -485,10 +553,19 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
+      // 编辑格式转为服务器格式
       const names = this.temp.students_name.split(',')
-      this.temp.students = names.map(item => {
-        return { value: item, already: true }
-      })
+      const fees = this.temp.students_fee.split(',')
+      const left_times = this.temp.students_left_times.split(',')
+      this.temp.students = []
+      for (let i = 0; i < names.length; ++i) {
+        this.temp.students.push({
+          value: names[i],
+          fee: Number(fees[i]),
+          left_times: Number(left_times[i]),
+          already: true
+        })
+      }
       this.temp.begin_time = this.temp.begin_time.slice(0, 5)
       this.temp.end_time = this.temp.end_time.slice(0, 5)
       this.temp.timestamp = new Date(this.temp.timestamp)
